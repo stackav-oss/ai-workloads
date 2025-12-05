@@ -10,10 +10,10 @@ sudo apt install ffmpeg
 
 ## Create virtual environment
 
-In the `experimental/project_magic/whisper/offline` folder run the following commands for setting up the virtual environment.
+In the `whisper/offline` folder run the following commands for setting up the virtual environment.
 
 ```bash
-cd experimental/project_magic/whisper/offline
+cd whisper/offline
 
 # create a virtual env and activate
 python -m venv .venv
