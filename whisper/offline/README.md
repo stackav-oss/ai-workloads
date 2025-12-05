@@ -35,8 +35,8 @@ export VLLM_ATTENTION_BACKEND=XFORMERS
 python3 src/main.py --model large-v3-turbo --demo
 
 # benchmark with librispeech
-python3 src/main.py --model large-v3
-python3 src/main.py --model large-v3-turbo
+python3 src/main.py --model large-v3 --kv-cache-type auto
+python3 src/main.py --model large-v3-turbo --kv-cache-type auto
 python3 src/main.py --model large-v3 --kv-cache-type fp8
 python3 src/main.py --model large-v3-turbo --kv-cache-type fp8
 python3 src/main.py --model large-v3 --kv-cache-type fp8 --max-num-seqs 256
@@ -66,3 +66,7 @@ INFO:__main__:  WER: 2.40   |   throughput: 47.62 reqs/sec  |   model: large-v3-
 INFO:__main__:  WER: 2.27   |   throughput: 41.34 reqs/sec  |   model: large-v3         |   kv_cache_type: fp8   |  max_num_seqs: 256
 INFO:__main__:  WER: 2.40   |   throughput: 50.23 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: fp8   |  max_num_seqs: 256
 ```
+
+
+### GB200 single GPU
+INFO:__main__:  WER: 2.31   |   throughput: 19.18 reqs/sec  |   model: large-v3     |   kv_cache_type: auto  |  max_num_seqs: 128
