@@ -32,15 +32,15 @@ pip install -r requirements.txt
 export VLLM_ATTENTION_BACKEND=XFORMERS
 
 # demo with sample audio files
-python src/main.py --model large-v3 --kv-cache-type fp8 --demo
+python3 src/main.py --model large-v3-turbo --demo
 
 # benchmark with librispeech
-python src/main.py --model large-v3
-python src/main.py --model large-v3-turbo
-python src/main.py --model large-v3 --kv-cache-type fp8
-python src/main.py --model large-v3-turbo --kv-cache-type fp8
-python src/main.py --model large-v3 --kv-cache-type fp8 --max-num-seqs 256
-python src/main.py --model large-v3-turbo --kv-cache-type fp8 --max-num-seqs 256
+python3 src/main.py --model large-v3
+python3 src/main.py --model large-v3-turbo
+python3 src/main.py --model large-v3 --kv-cache-type fp8
+python3 src/main.py --model large-v3-turbo --kv-cache-type fp8
+python3 src/main.py --model large-v3 --kv-cache-type fp8 --max-num-seqs 256
+python3 src/main.py --model large-v3-turbo --kv-cache-type fp8 --max-num-seqs 256
 ```
 
 ## Results
