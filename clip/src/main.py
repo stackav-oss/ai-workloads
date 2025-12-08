@@ -10,13 +10,11 @@ from PIL import Image
 from vllm import LLM
 
 speed_limit_classification_prompts = {
-    "30": "A photo of a speed limit sign indicating 30 mph.",
-    "45": "A photo of a speed limit sign indicating 45 mph.",
-    "55": "A photo of a speed limit sign indicating 55 mph.",
-    "65": "A photo of a speed limit sign indicating 65 mph.",
-    "70": "A photo of a speed limit sign indicating 70 mph.",
-    "75": "A photo of a speed limit sign indicating 75 mph.",
-    "None": "A photo of a sign with no number.",
+    "cat": "A photo of a cat.",
+    "dog": "A photo of a dog.",
+    "elephant": "A photo of an elephant.",
+    "tiger": "A photo of a tiger.",
+    "giraffe": "A photo of a giraffe.",
 }
 
 
@@ -28,14 +26,14 @@ def demo(model: str) -> None:
         runner="pooling",
         limit_mm_per_prompt={"image": 1},
     )
-    # Parse speed_limit_images folder and embed those images
+    # Parse images folder and embed those images
     print("Running demo...")
     demo_image_folder = Path("data/images")
     valid_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff"}
     image_paths = [p for p in demo_image_folder.iterdir() if p.is_file() and p.suffix.lower() in valid_extensions]
     text_prompts = speed_limit_classification_prompts.values()
     for image_path in image_paths:
-        label_class_name = image_path.stem.replace("speed_limit_", "")
+        label_class_name = image_path.stem
         # read PIL image
         image = Image.open(image_path).convert("RGB")
         image_prompt = [{"prompt": "", "multi_modal_data": {"image": image}}]
@@ -48,7 +46,7 @@ def demo(model: str) -> None:
         predicted_indices = np.argmax(similarities, axis=1)
         prediction = list(speed_limit_classification_prompts.keys())[predicted_indices[0]]
         print(f"Label class name: {label_class_name}, Predicted: {prediction}")
-        print("Correct prediction!" if int(label_class_name) == int(prediction) else "Incorrect prediction.")
+        print("Correct prediction!" if label_class_name == prediction else "Incorrect prediction.")
         print("-" * 40)
 
 
