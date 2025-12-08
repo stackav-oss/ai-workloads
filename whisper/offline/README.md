@@ -69,4 +69,12 @@ INFO:__main__:  WER: 2.40   |   throughput: 50.23 reqs/sec  |   model: large-v3-
 
 
 ### GB200 single GPU
-INFO:__main__:  WER: 2.31   |   throughput: 19.18 reqs/sec  |   model: large-v3     |   kv_cache_type: auto  |  max_num_seqs: 128
+```python
+INFO:__main__:  WER: 2.31   |   throughput: 19.18 reqs/sec  |   model: large-v3         |   kv_cache_type: auto  |  max_num_seqs: 128
+INFO:__main__:  WER: 2.31   |   throughput: 19.18 reqs/sec  |   model: large-v3         |   kv_cache_type: auto  |  max_num_seqs: 128
+INFO:__main__:  WER: 2.33   |   throughput: 24.81 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: auto  |  max_num_seqs: 128
+INFO:__main__:  WER: 2.27   |   throughput: 19.85 reqs/sec  |   model: large-v3         |   kv_cache_type: fp8   |  max_num_seqs: 128
+INFO:__main__:  WER: 2.42   |   throughput: 24.70 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: fp8   |  max_num_seqs: 128
+INFO:__main__:  WER: 2.27   |   throughput: 22.76 reqs/sec  |   model: large-v3         |   kv_cache_type: fp8   |  max_num_seqs: 256
+INFO:__main__:  WER: 2.42   |   throughput: 26.74 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: fp8   |  max_num_seqs: 256
+```
