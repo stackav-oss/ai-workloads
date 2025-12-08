@@ -1,0 +1,13 @@
+# Core dependencies
+# Note: For GPU support with CUDA 12.1, install with:
+# pip install torch==2.9.0 torchvision==0.24.0 --index-url https://download.pytorch.org/whl/cu121
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.9.0+cu126
+torchvision==0.24.0+cu126
+numpy>=2.2.6
+Pillow>=11.3.0
+tqdm>=4.67.1
+
+# vLLM nightly build (requires torch==2.9.0)
+# vllm @ https://vllm-wheels.s3.us-west-2.amazonaws.com/nightly/vllm-1.0.0.dev-cp38-abi3-manylinux1_x86_64.whl
+vllm @ https://vllm-wheels.s3.us-west-2.amazonaws.com/f8b19c0ffd65f7f6f01a0da4a39b6890f5db40cb/vllm-1.0.0.dev-cp38-abi3-manylinux1_x86_64.whl
