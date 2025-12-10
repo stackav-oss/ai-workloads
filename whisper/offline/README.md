@@ -45,7 +45,8 @@ python3 src/main.py --model large-v3-turbo --kv-cache-type fp8 --max-num-seqs 25
 
 ## Results
 
-### A10 single GPU
+### A10 single GPU (CPU: 32 AMD EPYC-Milan x86_64 Processor, Memory: 64G)
+
 
 ```python
 INFO:__main__:  WER: 2.31   |   throughput: 9.47 reqs/sec   |   model: large-v3         |   kv_cache_type: auto  |  max_num_seqs: 128
@@ -56,7 +57,7 @@ INFO:__main__:  WER: 2.26   |   throughput: 9.61 reqs/sec   |   model: large-v3 
 INFO:__main__:  WER: 2.40   |   throughput: 14.25 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: fp8   |  max_num_seqs: 256
 ```
 
-### H100 single GPU
+### H100 single GPU (CPU: 384 AMD EPYC 9654 x86_64 Processor, Memory: 1.5T)
 
 ```python
 INFO:__main__:  WER: 2.31   |   throughput: 35.30 reqs/sec  |   model: large-v3         |   kv_cache_type: auto  |  max_num_seqs: 128
@@ -68,7 +69,7 @@ INFO:__main__:  WER: 2.40   |   throughput: 50.23 reqs/sec  |   model: large-v3-
 ```
 
 
-### GB200 single GPU
+### GB200 single GPU (CPU: 144 ARM Neoverse-V2 aarch64 Processor, Memory: 944G)
 ```python
 INFO:__main__:  WER: 2.31   |   throughput: 19.18 reqs/sec  |   model: large-v3         |   kv_cache_type: auto  |  max_num_seqs: 128
 INFO:__main__:  WER: 2.33   |   throughput: 24.81 reqs/sec  |   model: large-v3-turbo   |   kv_cache_type: auto  |  max_num_seqs: 128
