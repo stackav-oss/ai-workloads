@@ -156,7 +156,8 @@ deactivate
 
 ## Results
 
-### A10 single GPU
+### A10 single GPU (CPU: 32 AMD EPYC-Milan x86_64 Processor, Memory: 64G)
+
 
 | Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
 | --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
@@ -171,7 +172,7 @@ deactivate
 | google/siglip2-large-patch16-384  | 83.33    | 624.54                | 56.27                  | Flex Attention    |
 | google/siglip2-so400m-patch14-224 | 83.38    | 479.79                | 83.05                  | Flex Attention    |
 
-### H100 single GPU
+### H100 single GPU (CPU: 384 AMD EPYC 9654 x86_64 Processor, Memory: 1.5T)
 
 | Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
 | --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
@@ -185,3 +186,18 @@ deactivate
 | google/siglip2-base-patch16-224   | 78.38    | 2274.42               | 183.29                 | Flex Attention    |
 | google/siglip2-large-patch16-384  | 83.32    | 1540.09               | 161.91                 | Flex Attention    |
 | google/siglip2-so400m-patch14-224 | 83.39    | 1525.11               | 187.20                 | Flex Attention    |
+
+### GB200 single GPU (CPU: 144 ARM Neoverse-V2 aarch64 Processor, Memory: 944G)
+
+| Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
+| --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
+| openai/clip-vit-base-patch16      | 67.11    | 2843.59               | 182.64                 | XFORMERS          |
+| openai/clip-vit-base-patch32      | 61.15    | 2863.20               | 180.12                 | XFORMERS          |
+| openai/clip-vit-large-patch14-336 | 75.82    | 2363.11               | 154.81                 | XFORMERS          |
+| openai/clip-vit-large-patch14     | 74.51    | 2868.80               | 180.29                 | XFORMERS          |
+| google/siglip-base-patch16-256    | 76.60    | 1845.43               | 165.14                 | Flex Attention    |
+| google/siglip-large-patch16-384   | 82.26    | 1362.50               | 175.31                 | Flex Attention    |
+| google/siglip-so400m-patch14-384  | 83.24    | 951.66                | 169.80                 | Flex Attention    |
+| google/siglip2-base-patch16-224   | 78.38    | 2361.17               | 189.03                 | Flex Attention    |
+| google/siglip2-large-patch16-384  | 83.32    | 1266.03               | 172.44                 | Flex Attention    |
+| google/siglip2-so400m-patch14-224 | 83.38    | 1336.03               | 187.29                 | Flex Attention    |
