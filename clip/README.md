@@ -156,7 +156,8 @@ deactivate
 
 ## Results
 
-### A10 single GPU
+### A10 single GPU (CPU: 32 AMD EPYC-Milan x86_64 Processor, Memory: 64G)
+
 
 | Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
 | --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
@@ -171,7 +172,7 @@ deactivate
 | google/siglip2-large-patch16-384  | 83.33    | 624.54                | 56.27                  | Flex Attention    |
 | google/siglip2-so400m-patch14-224 | 83.38    | 479.79                | 83.05                  | Flex Attention    |
 
-### H100 single GPU
+### H100 single GPU (CPU: 384 AMD EPYC 9654 x86_64 Processor, Memory: 1.5T)
 
 | Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
 | --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
@@ -186,7 +187,7 @@ deactivate
 | google/siglip2-large-patch16-384  | 83.32    | 1540.09               | 161.91                 | Flex Attention    |
 | google/siglip2-so400m-patch14-224 | 83.39    | 1525.11               | 187.20                 | Flex Attention    |
 
-### GB200 single GPU
+### GB200 single GPU (CPU: 144 ARM Neoverse-V2 aarch64 Processor, Memory: 944G)
 
 | Model                             | Accuracy | Embed Text Throughput | Embed Image Throughput | Attention Backend |
 | --------------------------------- | -------- | --------------------- | ---------------------- | ----------------- |
