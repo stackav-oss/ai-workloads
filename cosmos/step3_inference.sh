@@ -3,6 +3,7 @@ source $HOME/.local/bin/env
 # Check if HF_TOKEN is set and not empty
 if [[ -z "$HF_TOKEN" ]]; then
   echo "HF_TOKEN is either unset or empty"
+  exit 1
 fi
 
 

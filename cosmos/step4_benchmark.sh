@@ -1,5 +1,11 @@
 source $HOME/.local/bin/env
 
+# Check if HF_TOKEN is set and not empty
+if [[ -z "$HF_TOKEN" ]]; then
+  echo "HF_TOKEN is either unset or empty"
+  exit 1
+fi
+
 if [ $# -eq 0 ]; then
     echo "Error: Please provide an inference type [text2world|image2world]"
     exit 1
