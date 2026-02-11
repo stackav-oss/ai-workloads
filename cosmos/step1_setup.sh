@@ -13,7 +13,7 @@ uv --version
 cd /
 git clone https://github.com/nvidia-cosmos/cosmos-predict2.5.git
 cd cosmos-predict2.5
-git checkout 173b0fe
+git checkout 9557c1a
 
 cd /
 git clone https://github.com/SHI-Labs/physical-ai-bench.git
