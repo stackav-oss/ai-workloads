@@ -19,7 +19,7 @@ fi
 echo "Inference type: $inference_type"
 
 gpu_model=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits -i 0)
-echo "Detected GPU: $gpu_model"
+echo "Detected GPU: '$gpu_model'"
 
 available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 echo "Available GPUs: $available_gpus"
@@ -48,7 +48,7 @@ rm /results/predict/$inference_type/benchmark/*  > /dev/null 2>&1  || true
 # Run inference using custom pyton script mounted from repo
 cd /cosmos-predict2.5
 
-if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
+if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130   > /dev/null 2>&1  || true
 else
