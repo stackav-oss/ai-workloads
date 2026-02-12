@@ -41,10 +41,10 @@ source .venv/bin/activate
 uv pip install --no-build-isolation "git+https://github.com/facebookresearch/detectron2.git"
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu128
-    unset PYTHONPATH
-    unset LD_LIBRARY_PATH
+    uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu130
+    v pip install --reinstall numpy==1.26.4
 fi
+
 python -m torch.utils.collect_env | grep "PyTorch"
 
 python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
