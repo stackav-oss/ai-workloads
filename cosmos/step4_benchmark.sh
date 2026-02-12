@@ -41,7 +41,7 @@ source .venv/bin/activate
 uv pip install --no-build-isolation "git+https://github.com/facebookresearch/detectron2.git"
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu130
+    uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu128
     unset PYTHONPATH
     unset LD_LIBRARY_PATH
 fi
@@ -53,7 +53,7 @@ python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
 --dimension aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency i2v_background i2v_subject \
 --custom_image_folder /datasets/physical-ai-bench-generation/condition_image \
 --videos_path /results/predict/$inference_type/inference \
---output_path /results/predict/$inference_type/benchmark 
+--output_path /results/predict/$inference_type/benchmark || exit 1
 
 # Fix VLLM config for quality score evaluation
 sed -i 's/"gpu_memory_utilization": 0.55,/"gpu_memory_utilization": 0.75,/g' /physical-ai-bench/generation/pbench/vqa_evaluation.py
@@ -65,7 +65,7 @@ python evaluate_vqa.py \
 --prompt_file /datasets/physical-ai-bench-generation/cosmos_predict2_bench_full_info.json \
 --vqa_questions_dir /datasets/physical-ai-bench-generation/vqa \
 --video_dir /results/predict/$inference_type/inference  \
---output_dir /results/predict/$inference_type/benchmark  
+--output_dir /results/predict/$inference_type/benchmark || exit 1
 
 
 ## Aggregate results and print summary
