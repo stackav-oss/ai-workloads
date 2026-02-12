@@ -44,7 +44,7 @@ if [ "$gpu_model" == "NVIDIA GB200" ]; then
 fi
 uv run python -m torch.utils.collect_env | grep "PyTorch"
 
-python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
+uv run python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
 --mode custom_input \
 --prompt_file /datasets/physical-ai-bench-generation/cosmos_predict2_bench_full_info.json \
 --dimension aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency i2v_background i2v_subject \
