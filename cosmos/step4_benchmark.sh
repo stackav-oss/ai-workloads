@@ -18,6 +18,9 @@ if [ "$inference_type" != "text2world" ] && [ "$inference_type" != "image2world"
 fi
 echo "Inference type: $inference_type"
 
+gpu_model=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits -i 0)
+echo "Detected GPU: '$gpu_model'"
+
 # Get the absolute path of the directory containing this script
 ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "The script is located in: ${ROOT_DIR}"
@@ -27,9 +30,18 @@ cd /physical-ai-bench/generation
 
 deactivate || true
 
+if [ "$gpu_model" == "NVIDIA GB200" ]; then
+    echo "Using decord2 for NVIDIA GB200"
+    sed -i -e 's/"decord"/"decord2"/g' -e 's/qwen-vl-utils\[decord\]/qwen-vl-utils/g' /physical-ai-bench/generation/pyproject.toml
+fi
+
+
 uv sync 
 uv pip install --no-build-isolation "git+https://github.com/facebookresearch/detectron2.git"
-
+if [ "$gpu_model" == "NVIDIA GB200" ]; then
+    echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
+    uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu130
+fi
 
 
 uv run python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
