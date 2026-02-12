@@ -36,15 +36,16 @@ if [ "$gpu_model" == "NVIDIA GB200" ]; then
 fi
 
 
-uv sync 
+uv sync
+source .venv/bin/activate
 uv pip install --no-build-isolation "git+https://github.com/facebookresearch/detectron2.git"
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu130
 fi
-uv run python -m torch.utils.collect_env | grep "PyTorch"
+python -m torch.utils.collect_env | grep "PyTorch"
 
-uv run python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
+python -m torch.distributed.run --standalone --nproc_per_node 1 evaluate.py \
 --mode custom_input \
 --prompt_file /datasets/physical-ai-bench-generation/cosmos_predict2_bench_full_info.json \
 --dimension aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency i2v_background i2v_subject \
@@ -57,7 +58,7 @@ sed -i 's/"gpu_memory_utilization": 0.55,/"gpu_memory_utilization": 0.75,/g' /ph
 sed -i 's/"enable_expert_parallel": True,/"enable_expert_parallel": False, "enforce_eager": True,/g' /physical-ai-bench/generation/pbench/vqa_evaluation.py
 
 # Run quality score benchmarking script
-uv run python evaluate_vqa.py \
+python evaluate_vqa.py \
 --tensor_parallel_size 4 \
 --prompt_file /datasets/physical-ai-bench-generation/cosmos_predict2_bench_full_info.json \
 --vqa_questions_dir /datasets/physical-ai-bench-generation/vqa \
@@ -67,3 +68,4 @@ uv run python evaluate_vqa.py \
 
 ## Aggregate results and print summary
 python "$ROOT_DIR/aggregate_results.py" --inference_type=$inference_type --input_dir /results/predict/$inference_type/benchmark --output_dir /results/predict/$inference_type/benchmark
+deactivate
