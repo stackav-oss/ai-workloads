@@ -42,6 +42,8 @@ uv pip install --no-build-isolation "git+https://github.com/facebookresearch/det
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu130
+    unset PYTHONPATH
+    unset LD_LIBRARY_PATH
 fi
 python -m torch.utils.collect_env | grep "PyTorch"
 
