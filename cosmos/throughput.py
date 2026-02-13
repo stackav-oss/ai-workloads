@@ -72,7 +72,7 @@ def main(
         print(f"{inference_type} throughput warmup time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
 
     elapsed_times = []
-    for i in range(10):
+    for i in range(3):
         start_time = time.perf_counter()
         inference.generate(inference_samples[i:i+1], output_dir=args.setup.output_dir)
         elapsed_time = time.perf_counter() - start_time
