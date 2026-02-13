@@ -1,10 +1,6 @@
 """Inference script."""
 
-from pathlib import Path
-from typing import Annotated
 import json
-import os
-import sys
 import pydantic
 import tyro
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
@@ -30,7 +26,6 @@ class Args(pydantic.BaseModel):
     overrides: InferenceOverrides
     """Inference parameter overrides. These can either be provided in the input json file or via CLI. CLI overrides will overwrite the values in the input file."""
 
-import os
 def main(
     args: Args,
 ):

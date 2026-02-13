@@ -1,4 +1,4 @@
-"""Inference script."""
+"""Throughput evaluation script."""
 
 import time
 import json
