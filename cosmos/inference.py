@@ -17,7 +17,6 @@ from cosmos_predict2.config import (
 class Args(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid", frozen=True)
 
-    ###input_files: Annotated[list[Path], tyro.conf.arg(aliases=("-i",))]
     """Path to the inference parameter file(s).
     If multiple files are provided, the model will be loaded once and all the samples will be run sequentially.
     """

@@ -6,6 +6,7 @@ import os
 import statistics
 import pydantic
 import tyro
+import logging
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
 from cosmos_predict2.inference import Inference
 from cosmos_predict2.config import (
@@ -17,23 +18,22 @@ from cosmos_predict2.config import (
 )
 
 
+logging.getLogger(Inference).setLevel(logging.CRITICAL + 1)
+
+
 def get_nproc_per_node():
-    # 'LOCAL_WORLD_SIZE' environment variable holds the value passed to --nproc-per-node
     if 'LOCAL_WORLD_SIZE' in os.environ:
         try:
             return int(os.environ['LOCAL_WORLD_SIZE'])
         except ValueError:
             print("Error: LOCAL_WORLD_SIZE is not a valid integer.")
-    else:
-        # Fallback or handle cases where the script is not launched via torchrun
-        print("Warning: LOCAL_WORLD_SIZE environment variable not found. Returning None.")
-        return -1
+    
+    return -1
 
 
 class Args(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid", frozen=True)
 
-    ###input_files: Annotated[list[Path], tyro.conf.arg(aliases=("-i",))]
     """Path to the inference parameter file(s).
     If multiple files are provided, the model will be loaded once and all the samples will be run sequentially.
     """
@@ -69,7 +69,7 @@ def main(
     inference.generate(inference_samples[0:1], output_dir=args.setup.output_dir)
     elapsed_time = time.perf_counter() - start_time
     if is_rank0():
-        print(f"\n\n {inference_type} throughput warmup time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
+        print(f"{inference_type} throughput warmup time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
 
     elapsed_times = []
     for i in range(10):
@@ -78,13 +78,13 @@ def main(
         elapsed_time = time.perf_counter() - start_time
         elapsed_times.append(elapsed_time)
         if is_rank0():
-            print(f"\n\n {inference_type} throughput step {i+1} time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
+            print(f"\n\n{inference_type} throughput step {i+1} time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
 
     if is_rank0():
         avg_time = statistics.mean(elapsed_times)
         std_time = statistics.stdev(elapsed_times) if len(elapsed_times) > 1 else 0
         
-        results = f"Inference Statistics:\nAverage: {avg_time:.4f} seconds\nStd Dev: {std_time:.4f} seconds\n"
+        results = f"{inference_type} Inference Statistics:\nAverage: {avg_time:.4f} seconds\nStd Dev: {std_time:.4f} seconds\n"
         print(f"\n\n{results}")
         
         #with open("/tmp/inference_results.txt", "w") as f:
