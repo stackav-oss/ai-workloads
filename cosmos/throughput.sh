@@ -46,18 +46,16 @@ if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
 else
     uv sync --python 3.10 --extra=cu128   > /dev/null 2>&1  || true
 fi
+
+
 source .venv/bin/activate
 
-#torchrun --nproc_per_node=$available_gpus "/$ROOT_DIR/throughput.py" --inference-type $inference_type --disable-guardrails -o "/tmp"
-
-if [ $available_gpus -gt 4 ]; then
+if [ $available_gpus -gt 7 ]; then
     torchrun --nproc_per_node=8 "/$ROOT_DIR/throughput.py" --inference-type $inference_type --disable-guardrails -o "/tmp"
 fi
 torchrun --nproc_per_node=4 "/$ROOT_DIR/throughput.py" --inference-type $inference_type --disable-guardrails -o "/tmp"
 torchrun --nproc_per_node=2 "/$ROOT_DIR/throughput.py" --inference-type $inference_type --disable-guardrails -o "/tmp"
 torchrun --nproc_per_node=1 "/$ROOT_DIR/throughput.py" --inference-type $inference_type --disable-guardrails -o "/tmp"
-
-#python $ROOT_DIR/throughput.py --inference-type $inference_type --disable-guardrails -o "/tmp"
 
 deactivate
 

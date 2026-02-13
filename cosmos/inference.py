@@ -50,9 +50,6 @@ def main(
         else:
             raise ValueError(f"Unsupported inference type: {inference_type}")
 
-        # UGUR DEBUG
-        #if len(inference_samples)>20:
-        #    break
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
     inference = Inference(args.setup)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)

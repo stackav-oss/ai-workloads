@@ -1,10 +1,9 @@
 """Inference script."""
 
-from pathlib import Path
-from typing import Annotated
+import time
 import json
 import os
-import sys
+import statistics
 import pydantic
 import tyro
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
@@ -17,7 +16,6 @@ from cosmos_predict2.config import (
     is_rank0,
 )
 
-import os
 
 def get_nproc_per_node():
     # 'LOCAL_WORLD_SIZE' environment variable holds the value passed to --nproc-per-node
@@ -44,7 +42,7 @@ class Args(pydantic.BaseModel):
     overrides: InferenceOverrides
     """Inference parameter overrides. These can either be provided in the input json file or via CLI. CLI overrides will overwrite the values in the input file."""
 
-import os
+
 def main(
     args: Args,
 ):
@@ -64,8 +62,6 @@ def main(
         else:
             raise ValueError(f"Unsupported inference type: {inference_type}")
 
-
-    import time
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
     inference = Inference(args.setup)
 
@@ -73,14 +69,26 @@ def main(
     inference.generate(inference_samples[0:1], output_dir=args.setup.output_dir)
     elapsed_time = time.perf_counter() - start_time
     if is_rank0():
-        print(f"\n\nSTEP 2 Warmup generate() Elapsed time: {elapsed_time:.4f} seconds", get_nproc_per_node())
+        print(f"\n\n {inference_type} throughput warmup time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
 
-    for i in range(3):
+    elapsed_times = []
+    for i in range(10):
         start_time = time.perf_counter()
         inference.generate(inference_samples[i:i+1], output_dir=args.setup.output_dir)
         elapsed_time = time.perf_counter() - start_time
+        elapsed_times.append(elapsed_time)
         if is_rank0():
-            print(f"\n\nSTEP 3 generate Elapsed time: {elapsed_time:.4f} seconds", get_nproc_per_node())
+            print(f"\n\n {inference_type} throughput step {i+1} time: {elapsed_time:.4f} seconds using", get_nproc_per_node(), "GPUs")
+
+    if is_rank0():
+        avg_time = statistics.mean(elapsed_times)
+        std_time = statistics.stdev(elapsed_times) if len(elapsed_times) > 1 else 0
+        
+        results = f"Inference Statistics:\nAverage: {avg_time:.4f} seconds\nStd Dev: {std_time:.4f} seconds\n"
+        print(f"\n\n{results}")
+        
+        #with open("/tmp/inference_results.txt", "w") as f:
+        #    f.write(results)
 
 
 if __name__ == "__main__":
