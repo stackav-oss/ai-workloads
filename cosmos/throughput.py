@@ -1,12 +1,17 @@
 """Throughput evaluation script."""
 
+import logging
+import sys
+
+logging.basicConfig(stream=sys.stderr, level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 import time
 import json
 import os
 import statistics
 import pydantic
 import tyro
-import logging
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
 from cosmos_predict2.inference import Inference
 from cosmos_predict2.config import (
@@ -16,9 +21,6 @@ from cosmos_predict2.config import (
     handle_tyro_exception,
     is_rank0,
 )
-
-
-logging.getLogger(Inference).setLevel(logging.CRITICAL + 1)
 
 
 def get_nproc_per_node():
