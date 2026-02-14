@@ -23,46 +23,62 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_test_data(results_dir: str) -> List[Dict[str, Any]]:
-    """Load test data from CSV file."""
-    data_file = Path(results_dir) / "test_data.csv"
-    
-    if not data_file.exists():
-        logger.warning("No test data file found: %s", data_file)
-        return []
-    
+def load_individual_results(results_dir: str) -> List[Dict[str, Any]]:
+    """Load individual throughput results from separate files."""
+    results_path = Path(results_dir)
     results_data = []
-    try:
-        with open(data_file, 'r', encoding='utf-8') as file:
-            lines = file.readlines()[1:]  # Skip header
-            for line in lines:
-                parts = line.strip().split(',')
-                if len(parts) >= 5:
-                    nproc = int(parts[0])
-                    status = parts[1]
-                    
-                    if status == "COMPLETED":
-                        avg_time = float(parts[2])
-                        std_time = float(parts[3])
-                        throughput = float(parts[4])
-                        results_data.append({
-                            'nproc_per_node': nproc,
-                            'status': status,
-                            'avg_time': avg_time,
-                            'std_time': std_time,
-                            'throughput': throughput
-                        })
-                    else:
-                        results_data.append({
-                            'nproc_per_node': nproc,
-                            'status': status,
-                            'avg_time': 0,
-                            'std_time': 0,
-                            'throughput': 0
-                        })
-    except (IOError, ValueError) as e:
-        logger.error("Error loading test data: %s", e)
+    
+    if not results_path.exists():
+        logger.warning("Results directory does not exist: %s", results_dir)
         return []
+    
+    # Look for individual GPU configuration result files
+    gpu_configs = [1, 2, 4, 8]  # Standard configurations
+    
+    for nproc in gpu_configs:
+        result_file = results_path / f"{nproc}gpu" / f"throughput_results_{nproc}gpu.txt"
+        
+        if result_file.exists():
+            try:
+                with open(result_file, 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    
+                # Parse the content to extract metrics
+                avg_time = None
+                std_time = None
+                throughput = None
+                
+                for line in content.split('\n'):
+                    if line.startswith('Average Time:'):
+                        avg_time = float(line.split(':')[1].strip().split()[0])
+                    elif line.startswith('Std Deviation:'):
+                        std_time = float(line.split(':')[1].strip().split()[0])
+                    elif line.startswith('Throughput:'):
+                        throughput = float(line.split(':')[1].strip().split()[0])
+                
+                if all(v is not None for v in [avg_time, std_time, throughput]):
+                    results_data.append({
+                        'nproc_per_node': nproc,
+                        'status': 'COMPLETED',
+                        'avg_time': avg_time,
+                        'std_time': std_time,
+                        'throughput': throughput
+                    })
+                    logger.info("Loaded results for %d GPU configuration", nproc)
+                else:
+                    logger.warning("Incomplete data in %s", result_file)
+                    
+            except (IOError, ValueError) as e:
+                logger.error("Error loading results from %s: %s", result_file, e)
+        else:
+            # Mark as failed/missing
+            results_data.append({
+                'nproc_per_node': nproc,
+                'status': 'FAILED',
+                'avg_time': 0,
+                'std_time': 0,
+                'throughput': 0
+            })
     
     return results_data
 
@@ -156,8 +172,8 @@ def main():
     
     logger.info("Generating throughput summary for %s", args.inference_type)
     
-    # Load test data
-    results_data = load_test_data(args.results_dir)
+    # Load individual test results
+    results_data = load_individual_results(args.results_dir)
     
     if not results_data:
         logger.warning("No test data found, creating empty results file")

@@ -71,11 +71,13 @@ class Args(pydantic.BaseModel):
     Attributes:
         setup: Setup arguments that can only be provided via CLI
         overrides: Inference parameter overrides that can be provided via CLI or JSON file
+        save_results_to: Optional directory to save individual results to
     """
     model_config = pydantic.ConfigDict(extra="forbid", frozen=True)
 
     setup: SetupArguments
     overrides: InferenceOverrides
+    save_results_to: Optional[str] = None
 
 
 def load_benchmark_data() -> List[Dict[str, Any]]:
@@ -219,65 +221,54 @@ def run_benchmark(inference: Inference, samples: List[InferenceArguments],
     return elapsed_times
 
 
-def save_throughput_results(results_data: List[Dict[str, Any]], inference_type: str, output_dir: str) -> str:
-    """Save throughput results to a nicely formatted file.
+def save_individual_throughput_results(elapsed_times: List[float], inference_type: str, 
+                                      nproc_per_node: int, results_dir: Optional[str]) -> None:
+    """Save individual throughput results for a specific nproc configuration.
     
     Args:
-        results_data: List of throughput results for different GPU configurations
+        elapsed_times: List of elapsed times from benchmark runs
         inference_type: Type of inference being benchmarked
-        output_dir: Base output directory
-        
-    Returns:
-        Path to the saved results file
+        nproc_per_node: Number of processes per node for this test
+        results_dir: Directory to save results to
     """
-    results_dir = Path(output_dir) / inference_type / "throughput"
-    results_dir.mkdir(parents=True, exist_ok=True)
+    if not results_dir or not elapsed_times:
+        return
+        
+    results_path = Path(results_dir)
+    results_path.mkdir(parents=True, exist_ok=True)
     
-    results_file = results_dir / "throughput_results.txt"
+    results_file = results_path / f"throughput_results_{nproc_per_node}gpu.txt"
     
-    # Create formatted results content
+    avg_time = statistics.mean(elapsed_times)
+    std_time = statistics.stdev(elapsed_times) if len(elapsed_times) > 1 else 0
+    throughput = nproc_per_node / avg_time
+    
     content_lines = [
-        "=" * 60,
-        f"COSMOS {inference_type.upper()} THROUGHPUT BENCHMARK RESULTS",
-        "=" * 60,
+        "=" * 50,
+        f"COSMOS {inference_type.upper()} THROUGHPUT - {nproc_per_node} GPU{'s' if nproc_per_node > 1 else ''}",
+        "=" * 50,
         f"Evaluation Date: {time.strftime('%Y-%m-%d %H:%M:%S')}",
         f"Inference Type: {inference_type}",
+        f"GPU Configuration: {nproc_per_node}",
         f"Dataset: Physical AI Benchmark",
         "",
-        "GPU Configuration and Performance Results:",
-        "-" * 40,
+        "Performance Results:",
+        "-" * 30,
+        f"Average Time: {avg_time:.4f} seconds",
+        f"Std Deviation: {std_time:.4f} seconds",
+        f"Throughput: {throughput:.4f} samples/sec/GPU",
+        f"Total Runs: {len(elapsed_times)}",
+        "",
+        "Individual Run Times:",
+        "-" * 30
     ]
     
-    for result in results_data:
-        nproc = result['nproc_per_node']
-        times = result['elapsed_times']
-        if not times:
-            content_lines.extend([
-                f"\n🔸 {nproc} GPU{'s' if nproc > 1 else ''}:",
-                f"   Status: FAILED or SKIPPED",
-            ])
-            continue
-            
-        avg_time = statistics.mean(times)
-        std_time = statistics.stdev(times) if len(times) > 1 else 0
-        throughput = nproc / avg_time  # samples per second per GPU
-        
-        content_lines.extend([
-            f"\n🔸 {nproc} GPU{'s' if nproc > 1 else ''}:",
-            f"   Average Time: {avg_time:.4f} seconds",
-            f"   Std Deviation: {std_time:.4f} seconds",
-            f"   Throughput: {throughput:.4f} samples/sec/GPU",
-            f"   Runs Completed: {len(times)}",
-        ])
+    for i, time_val in enumerate(elapsed_times, 1):
+        content_lines.append(f"Run {i}: {time_val:.4f} seconds")
     
     content_lines.extend([
         "",
-        "-" * 40,
-        "Summary:",
-        f"✅ Total Configurations Tested: {len([r for r in results_data if r['elapsed_times']])}",
-        f"❌ Failed Configurations: {len([r for r in results_data if not r['elapsed_times']])}",
-        "",
-        "=" * 60,
+        "=" * 50
     ])
     
     content = "\n".join(content_lines)
@@ -285,40 +276,36 @@ def save_throughput_results(results_data: List[Dict[str, Any]], inference_type: 
     try:
         with open(results_file, 'w', encoding='utf-8') as file:
             file.write(content)
-        logger.info("Throughput results saved to %s", results_file)
-        return str(results_file)
+        logger.info("Individual throughput results saved to %s", results_file)
     except IOError as e:
-        logger.error("Failed to save throughput results: %s", e)
-        raise
+        logger.error("Failed to save individual throughput results: %s", e)
 
 
-def print_final_throughput_results(results_data: List[Dict[str, Any]], inference_type: str) -> None:
+def print_final_throughput_results(elapsed_times: List[float], inference_type: str, 
+                                   nproc_per_node: int) -> None:
     """Print final throughput results summary to console.
     
     Args:
-        results_data: List of throughput results for different GPU configurations
+        elapsed_times: List of elapsed times from benchmark runs
         inference_type: Type of inference being benchmarked
+        nproc_per_node: Number of processes per node
     """
-    print("\n" + "=" * 60)
-    print(f"🚀 FINAL THROUGHPUT RESULTS - {inference_type.upper()}")
+    if not elapsed_times:
+        print(f"\nNo timing data available for {nproc_per_node} GPU configuration")
+        return
+        
+    avg_time = statistics.mean(elapsed_times)
+    std_time = statistics.stdev(elapsed_times) if len(elapsed_times) > 1 else 0
+    throughput = nproc_per_node / avg_time
+    
+    print()
     print("=" * 60)
-    
-    successful_tests = [r for r in results_data if r['elapsed_times']]
-    failed_tests = [r for r in results_data if not r['elapsed_times']]
-    
-    if successful_tests:
-        print("\n📊 Performance Summary:")
-        for result in successful_tests:
-            nproc = result['nproc_per_node']
-            times = result['elapsed_times']
-            avg_time = statistics.mean(times)
-            throughput = nproc / avg_time
-            print(f"   {nproc} GPU{'s' if nproc > 1 else ''}: {avg_time:.4f}s avg, {throughput:.4f} samples/sec/GPU")
-    
-    if failed_tests:
-        print(f"\n❌ Failed Tests: {len(failed_tests)} configurations")
-    
-    print(f"\n✅ Overall: {len(successful_tests)}/{len(results_data)} configurations completed successfully")
+    print(f"FINAL THROUGHPUT RESULTS - {inference_type.upper()} ({nproc_per_node} GPU{'s' if nproc_per_node > 1 else ''})")
+    print("=" * 60)
+    print(f"Average Time: {avg_time:.4f} seconds")
+    print(f"Std Deviation: {std_time:.4f} seconds")
+    print(f"Throughput: {throughput:.4f} samples/sec/GPU")
+    print(f"Total Runs: {len(elapsed_times)}")
     print("=" * 60)
 
 
@@ -351,18 +338,12 @@ def main(args: Args) -> None:
         # Run benchmark for this specific nproc configuration
         elapsed_times = run_benchmark(inference, inference_samples, args.setup.output_dir, inference_type, nproc_per_node)
         
-        # Calculate statistics for this run
-        if elapsed_times:
-            avg_time = statistics.mean(elapsed_times)
-            std_time = statistics.stdev(elapsed_times) if len(elapsed_times) > 1 else 0
-            throughput = nproc_per_node / avg_time
-            
-            if is_rank0():
-                logger.info("\n\n=== THROUGHPUT RESULTS FOR %d GPUs ===", nproc_per_node)
-                logger.info("Average Time: %.4f seconds", avg_time)
-                logger.info("Std Deviation: %.4f seconds", std_time)
-                logger.info("Throughput: %.4f samples/sec/GPU", throughput)
-                logger.info("============================================\n")
+        # Save individual results if directory provided
+        save_individual_throughput_results(elapsed_times, inference_type, nproc_per_node, args.save_results_to)
+        
+        # Print final results
+        if is_rank0():
+            print_final_throughput_results(elapsed_times, inference_type, nproc_per_node)
             
     except Exception as e:
         logger.error("Error during throughput evaluation: %s", e)

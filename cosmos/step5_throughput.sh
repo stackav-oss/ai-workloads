@@ -70,23 +70,27 @@ run_throughput_test() {
     local inference_type="$1"
     local root_dir="$2"
     local nproc="$3"
-    local results_data_file="$4"
+    local results_base_dir="$4"
     
-    echo "\n=== Testing with $nproc GPUs ==="
+    echo
+    echo "=== Testing with $nproc GPUs ==="
     
     if [ "$nproc" -gt "$AVAILABLE_GPUS" ]; then
         echo "Skipping $nproc GPU test (only $AVAILABLE_GPUS available)"
-        echo "$nproc,SKIPPED,0,0,0" >> "$results_data_file"
         return 0
     fi
+    
+    # Create individual results directory for this nproc
+    local nproc_results_dir="$results_base_dir/${nproc}gpu"
+    mkdir -p "$nproc_results_dir"
     
     if ! torchrun --nproc_per_node="$nproc" \
         "$root_dir/throughput.py" \
         --inference-type "$inference_type" \
         --disable-guardrails \
-        -o "/results/predict"; then
+        -o "/tmp/throughput_${nproc}gpu" \
+        --save-results-to "$nproc_results_dir"; then
         echo "Error: Throughput test failed for $nproc GPUs" >&2
-        echo "$nproc,FAILED,0,0,0" >> "$results_data_file"
         return 1
     fi
     
@@ -100,31 +104,28 @@ run_all_throughput_tests() {
     echo "Running comprehensive throughput evaluation for: $inference_type"
     echo "Available GPUs: $AVAILABLE_GPUS"
     
-    # Create results directory and data file
+    # Create main results directory
     local results_dir="/results/predict/$inference_type/throughput"
     mkdir -p "$results_dir"
-    local results_data_file="$results_dir/test_data.csv"
-    
-    # Initialize CSV file
-    echo "nproc,status,avg_time,std_time,throughput" > "$results_data_file"
     
     local failed_tests=0
     
     for nproc in "${GPU_CONFIGURATIONS[@]}"; do
-        if ! run_throughput_test "$inference_type" "$root_dir" "$nproc" "$results_data_file"; then
+        if ! run_throughput_test "$inference_type" "$root_dir" "$nproc" "$results_dir"; then
             ((failed_tests++))
             echo "Warning: Test with $nproc GPUs failed"
         fi
     done
     
-    # Generate final results
+    # Generate consolidated summary
     python "$root_dir/generate_throughput_summary.py" \
         --inference_type "$inference_type" \
         --results_dir "$results_dir"
     
     # Print final summary
     if [ -f "$results_dir/throughput_results.txt" ]; then
-        echo "\n" && cat "$results_dir/throughput_results.txt"
+        echo
+        cat "$results_dir/throughput_results.txt"
     fi
     
     if [ $failed_tests -gt 0 ]; then

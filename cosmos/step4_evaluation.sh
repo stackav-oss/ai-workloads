@@ -145,7 +145,10 @@ aggregate_results() {
     # Display final results
     local final_results_file="$output_dir/final_results.txt"
     if [ -f "$final_results_file" ]; then
-        echo "\n" && cat "$final_results_file"
+        echo
+        echo "=== FINAL PAI-BENCH EVALUATION RESULTS ==="
+        cat "$final_results_file"
+        echo "========================================="
     fi
     
     echo "Results aggregation completed"
