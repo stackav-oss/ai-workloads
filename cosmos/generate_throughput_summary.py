@@ -115,7 +115,8 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
             successful_configs.append(result)
             
             content_lines.extend([
-                f"\\n🟢 {nproc} GPU{'s' if nproc > 1 else ''}:",
+                "",
+                f"🟢 {nproc} GPU{'s' if nproc > 1 else ''}:",
                 f"   Average Time: {avg_time:.4f} seconds",
                 f"   Std Deviation: {std_time:.4f} seconds",
                 f"   Throughput: {throughput:.4f} samples/sec/GPU",
@@ -124,7 +125,8 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
         else:
             failed_configs.append(result)
             content_lines.extend([
-                f"\\n🔴 {nproc} GPU{'s' if nproc > 1 else ''}:",
+                "",
+                f"🔴 {nproc} GPU{'s' if nproc > 1 else ''}:",
                 f"   Status: ❌ {status}",
             ])
     
@@ -154,7 +156,7 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
         "=" * 60,
     ])
     
-    content = "\\n".join(content_lines)
+    content = "\n".join(content_lines)
     
     try:
         with open(results_file, 'w', encoding='utf-8') as file:
