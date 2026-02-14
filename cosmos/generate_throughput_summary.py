@@ -131,35 +131,35 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
             ])
     
     # Add summary
-    content_lines.extend([
-        "",
-        "-" * 40,
-        "Summary:",
-        f"✅ Successful Configurations: {len(successful_configs)}",
-        f"❌ Failed Configurations: {len(failed_configs)}",
-        f"📊 Total Tests Run: {len(results_data)}",
-    ])
+    #content_lines.extend([
+    #    "",
+    #    "-" * 40,
+    #    "Summary:",
+    #    f"✅ Successful Configurations: {len(successful_configs)}",
+    #    f"❌ Failed Configurations: {len(failed_configs)}",
+    #    f"📊 Total Tests Run: {len(results_data)}",
+    #])
     
     # Add best performance if any successful tests
-    if successful_configs:
-        best_config = max(successful_configs, key=lambda x: x['throughput'])
-        content_lines.extend([
-            "",
-            "🏆 Best Performance:",
-            f"   Configuration: {best_config['nproc_per_node']} GPU{'s' if best_config['nproc_per_node'] > 1 else ''}",
-            f"   Throughput: {best_config['throughput']:.4f} samples/sec/GPU",
-            f"   Average Time: {best_config['avg_time']:.4f} seconds",
-        ])
+    #if successful_configs:
+    #    best_config = max(successful_configs, key=lambda x: x['throughput'])
+    #    content_lines.extend([
+    #        "",
+    #        "🏆 Best Performance:",
+    #        f"   Configuration: {best_config['nproc_per_node']} GPU{'s' if best_config['nproc_per_node'] > 1 else ''}",
+    #        f"   Throughput: {best_config['throughput']:.4f} samples/sec/GPU",
+    #        f"   Average Time: {best_config['avg_time']:.4f} seconds",
+    #    ])
     
-    content_lines.extend([
-        "",
-        "=" * 60,
-    ])
+    #content_lines.extend([
+    #    "",
+    #    "=" * 60,
+    #])
     
     content = "\n".join(content_lines)
     
     try:
-        with open(results_file, 'w', encoding='utf-8', newline='') as file:
+        with open(results_file, 'w', encoding='utf-8') as file:
             file.write(content)
         logger.info("Throughput results saved to %s", results_file)
         return str(results_file)
