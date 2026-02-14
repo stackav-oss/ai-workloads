@@ -156,6 +156,7 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
     #    "=" * 60,
     #])
     
+    content_lines.appen("")
     content = "\n".join(content_lines)
     
     try:
