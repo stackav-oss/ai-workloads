@@ -159,7 +159,7 @@ def generate_throughput_summary(results_data: List[Dict[str, Any]], inference_ty
     content = "\n".join(content_lines)
     
     try:
-        with open(results_file, 'w', encoding='utf-8') as file:
+        with open(results_file, 'w', encoding='utf-8', newline='') as file:
             file.write(content)
         logger.info("Throughput results saved to %s", results_file)
         return str(results_file)
