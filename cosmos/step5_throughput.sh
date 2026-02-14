@@ -47,6 +47,22 @@ get_gpu_info() {
     export AVAILABLE_GPUS="$available_gpus"
 }
 
+clean_throughput_results() {
+    local inference_type="$1"
+    local throughput_dir="/results/predict/$inference_type/throughput"
+    
+    echo "Cleaning previous throughput results..."
+    
+    if [ -d "$throughput_dir" ]; then
+        rm -rf "$throughput_dir"/*
+        echo "Cleaned throughput directory: $throughput_dir"
+    else
+        echo "Creating new throughput directory: $throughput_dir"
+    fi
+    
+    mkdir -p "$throughput_dir"
+}
+
 setup_python_environment() {
     echo "Setting up Python environment for throughput evaluation..."
     
@@ -165,6 +181,7 @@ source "$HOME/.local/bin/env"
 # Setup and validation
 check_hf_token
 get_gpu_info
+clean_throughput_results "$inference_type"
 
 echo "Running throughput evaluation for: $inference_type"
 

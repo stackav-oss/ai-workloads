@@ -36,6 +36,22 @@ get_gpu_info() {
     export GPU_MODEL="$gpu_model"
 }
 
+clean_evaluation_results() {
+    local inference_type="$1"
+    local evaluation_dir="$RESULTS_BASE_DIR/$inference_type/evaluation"
+    
+    echo "Cleaning previous evaluation results..."
+    
+    if [ -d "$evaluation_dir" ]; then
+        rm -rf "$evaluation_dir"/*
+        echo "Cleaned evaluation directory: $evaluation_dir"
+    else
+        echo "Creating new evaluation directory: $evaluation_dir"
+    fi
+    
+    mkdir -p "$evaluation_dir"
+}
+
 setup_python_environment() {
     echo "Setting up Python environment..."
     
@@ -181,8 +197,9 @@ echo "Script located in: $ROOT_DIR"
 # Setup and validation
 check_hf_token
 get_gpu_info
+clean_evaluation_results "$inference_type"
 
-echo "Running benchmark evaluation for: $inference_type"
+echo "Running evaluation for: $inference_type"
 
 # Setup Python environment
 cd "$INFRASTRUCTURE_DIR"
