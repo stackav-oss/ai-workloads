@@ -5,7 +5,7 @@
 set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 
 # Configuration
-INFRASTRUCTURE_DIR="/physical-ai-bench/generation"
+PAI_DIR="/physical-ai-bench/generation"
 RESULTS_BASE_DIR="/results/predict"
 DATASETS_DIR="/datasets"
 
@@ -61,7 +61,7 @@ setup_python_environment() {
     # Handle GB200 specific requirements
     if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
         echo "Configuring for NVIDIA GB200"
-        sed -i -e 's/"decord"/"decord2"/g' -e 's/qwen-vl-utils\[decord\]/qwen-vl-utils/g' "$INFRASTRUCTURE_DIR/pyproject.toml"
+        sed -i -e 's/"decord"/"decord2"/g' -e 's/qwen-vl-utils\[decord\]/qwen-vl-utils/g' "$PAI_DIR/pyproject.toml"
     fi
     
     # Sync environment
@@ -80,7 +80,7 @@ setup_python_environment() {
     # Handle GB200 specific PyTorch installation
     if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
         echo "Installing PyTorch with CUDA 13.0 for NVIDIA GB200"
-        uv pip install --reinstall torch torchvision --index-url https://download.pytorch.org/whl/cu130
+        uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
         uv pip install --reinstall numpy==1.26.4
     fi
     
@@ -90,7 +90,7 @@ setup_python_environment() {
 
 optimize_vllm_config() {
     echo "Optimizing VLLM configuration for quality evaluation..."
-    local vqa_file="$INFRASTRUCTURE_DIR/pbench/vqa_evaluation.py"
+    local vqa_file="$PAI_DIR/pbench/vqa_evaluation.py"
     
     if [ -f "$vqa_file" ]; then
         sed -i 's/"gpu_memory_utilization": 0.55,/"gpu_memory_utilization": 0.75,/g' "$vqa_file"
@@ -202,7 +202,7 @@ clean_evaluation_results "$inference_type"
 echo "Running evaluation for: $inference_type"
 
 # Setup Python environment
-cd "$INFRASTRUCTURE_DIR"
+cd "$PAI_DIR"
 setup_python_environment
 
 # Trap to ensure cleanup
