@@ -9,8 +9,6 @@ PAI_DIR="/physical-ai-bench/generation"
 RESULTS_BASE_DIR="/results/predict"
 DATASETS_DIR="/datasets"
 
-# VQA evaluation dimensions
-EVAL_DIMENSIONS="aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency i2v_background i2v_subject"
 
 # Functions
 check_hf_token() {
@@ -189,6 +187,13 @@ fi
 
 inference_type="$1"
 validate_inference_type "$inference_type"
+
+# Adjust evaluation dimensions based on inference type
+if [ "$inference_type" == "text2world" ]; then
+    EVAL_DIMENSIONS="aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency"
+else
+    EVAL_DIMENSIONS="aesthetic_quality background_consistency imaging_quality motion_smoothness overall_consistency subject_consistency i2v_background i2v_subject"
+fi
 
 # Get script directory
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

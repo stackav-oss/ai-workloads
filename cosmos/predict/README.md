@@ -13,7 +13,7 @@ docker run --gpus=all -v ./:/cosmos -it --rm -e HF_TOKEN="$HF_TOKEN" nvidia/cuda
 ### Text-to-World Pipeline
 
 ```bash
-cd /cosmos
+cd /cosmos/predict
 ./step1_setup.sh
 ./step2_download_data.sh
 ./step3_inference.sh text2world
