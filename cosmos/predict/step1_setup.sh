@@ -27,35 +27,18 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 source "$HOME/.local/bin/env"
 uv --version
 
-echo "Cloning required repositories..."
 
-# Clone cosmos-predict2.5 repository
-if [ -d "${INSTALL_DIR}/cosmos-predict2.5" ]; then
-    echo "cosmos-predict2.5 repository already exists, updating..."
-    cd "${INSTALL_DIR}/cosmos-predict2.5"
-    git fetch origin
-    git checkout "$COSMOS_COMMIT"
-else
-    echo "Cloning cosmos-predict2.5 repository..."
-    cd "$INSTALL_DIR"
-    git clone https://github.com/nvidia-cosmos/cosmos-predict2.5.git
-    cd cosmos-predict2.5
-    git checkout "$COSMOS_COMMIT"
-fi
+echo "Cloning cosmos-predict2.5 repository..."
+cd "$INSTALL_DIR"
+git clone https://github.com/nvidia-cosmos/cosmos-predict2.5.git
+cd cosmos-predict2.5
+git checkout "$COSMOS_COMMIT"
 
-# Clone physical-ai-bench repository
-if [ -d "${INSTALL_DIR}/physical-ai-bench" ]; then
-    echo "physical-ai-bench repository already exists, updating..."
-    cd "${INSTALL_DIR}/physical-ai-bench"
-    git fetch origin
-    git checkout "$PHYSICAL_AI_BENCH_COMMIT"
-else
-    echo "Cloning physical-ai-bench repository..."
-    cd "$INSTALL_DIR"
-    git clone https://github.com/SHI-Labs/physical-ai-bench.git
-    cd physical-ai-bench
-    git checkout "$PHYSICAL_AI_BENCH_COMMIT"
-fi
+echo "Cloning physical-ai-bench repository..."
+cd "$INSTALL_DIR"
+git clone https://github.com/SHI-Labs/physical-ai-bench.git
+cd physical-ai-bench
+git checkout "$PHYSICAL_AI_BENCH_COMMIT"
 
 echo "COSMOS environment setup completed successfully!"
 echo "Repositories installed in: $INSTALL_DIR"
