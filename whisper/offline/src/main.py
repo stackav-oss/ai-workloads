@@ -72,11 +72,24 @@ class LibriSpeech(torch.utils.data.Dataset[tuple[torch.Tensor, str]]):
         return audio, text
 
 
-def benchmark(llm: LLM) -> tuple[float, float]:
-    """Calculate and return wer and throughput."""
+def calculate_results(start_time: float, end_time: float, hypotheses: list[str], references: list[str]) -> tuple[float, float]:
+    """Calculate wer and throughput."""
+    throughput = len(references) / (end_time - start_time)
+
+    data = pd.DataFrame({"hypothesis": hypotheses, "reference": references})
+
+    normalizer = EnglishTextNormalizer()
+
+    data["hypothesis_clean"] = [normalizer(text) for text in data["hypothesis"]]
+    data["reference_clean"] = [normalizer(text) for text in data["reference"]]
+
+    return jiwer.wer(list(data["reference_clean"]), list(data["hypothesis_clean"])) * 100, throughput
+
+
+def benchmark_vllm(llm: LLM) -> tuple[float, float]:
+    """Calculate and return wer and throughput using vLLM backend."""
     dataset = LibriSpeech(_SPLIT)
     loader = torch.utils.data.DataLoader(dataset, batch_size=len(dataset))
-    normalizer = EnglishTextNormalizer()
 
     hypotheses = []
     references = []
@@ -87,17 +100,34 @@ def benchmark(llm: LLM) -> tuple[float, float]:
         hypotheses.extend([result.outputs[0].text for result in results])
         references.extend(texts)
     end_time = time.perf_counter()
-    throughput = len(references) / (end_time - start_time)
 
-    data = pd.DataFrame({"hypothesis": hypotheses, "reference": references})
-    data["hypothesis_clean"] = [normalizer(text) for text in data["hypothesis"]]
-    data["reference_clean"] = [normalizer(text) for text in data["reference"]]
-
-    return jiwer.wer(list(data["reference_clean"]), list(data["hypothesis_clean"])) * 100, throughput
+    return calculate_results(start_time, end_time, hypotheses, references)
 
 
-def demo(llm: LLM) -> None:
-    """Run demo with sample audio files."""
+def benchmark_openai(model: whisper.Whisper, batch_size: int) -> tuple[float, float]:
+    """Calculate and return wer and throughput using OpenAI Whisper backend."""
+    dataset = LibriSpeech(_SPLIT)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+
+    hypotheses = []
+    references = []
+    start_time = time.perf_counter()
+    for mels, texts in tqdm(loader, leave=True):
+        batched_audio = torch.stack([mel for mel in mels])
+        batched_mel = whisper.log_mel_spectrogram(batched_audio, n_mels=model.dims.n_mels).to(model.device)
+
+        options = whisper.DecodingOptions()
+        results = whisper.decode(model, batched_mel, options)
+
+        hypotheses.extend([result.text for result in results])
+        references.extend(texts)
+    end_time = time.perf_counter()
+
+    return calculate_results(start_time, end_time, hypotheses, references)
+
+
+def demo_vllm(llm: LLM) -> None:
+    """Run demo with sample audio files using vLLM backend."""
     prompts = []
     for file_name in _AUDIO_FILES:
         file_path = _ASSETS_DIR / file_name
@@ -112,6 +142,21 @@ def demo(llm: LLM) -> None:
     for result, audio_file in zip(results, _AUDIO_FILES, strict=False):
         text = result.outputs[0].text
         _logger.info("%s: transcription: %s", audio_file, text)
+
+
+def demo_openai(model: whisper.Whisper) -> None:
+    """Run demo with sample audio files using OpenAI Whisper backend."""
+    _logger.info("\n%sDEMO TRANSCRIPTIONS%s", "=" * 70, "=" * 70)
+
+    for file_name in _AUDIO_FILES:
+        file_path = _ASSETS_DIR / file_name
+        audio, sample_rate = librosa.load(file_path, sr=None)
+        assert sample_rate == _EXPECTED_SAMPLE_RATE, (
+            f"Expected sample rate {_EXPECTED_SAMPLE_RATE}, but got {sample_rate}"
+        )
+        audio = whisper.pad_or_trim(audio)
+        result = model.transcribe(audio)
+        _logger.info("%s: transcription: %s", file_name, result["text"])
 
 
 def initialize_vllm(model_name: str, kv_cache_type: str, max_num_seqs: int) -> LLM:
@@ -129,6 +174,11 @@ def initialize_vllm(model_name: str, kv_cache_type: str, max_num_seqs: int) -> L
     )
 
 
+def initialize_openai(model: str) -> whisper.Whisper:
+    """Initialize OpenAI Whisper model."""
+    return whisper.load_model(model)
+
+
 @click.command()
 @click.option(
     "--model",
@@ -136,39 +186,69 @@ def initialize_vllm(model_name: str, kv_cache_type: str, max_num_seqs: int) -> L
     required=True,
 )
 @click.option(
+    "--backend",
+    type=click.Choice(["vllm", "openai"]),
+    default="vllm",
+    help="Backend to use for inference (default: vllm).",
+)
+@click.option(
     "--kv-cache-type",
     default="auto",
     type=click.Choice(["fp8", "auto"]),
-    required=True,
+    help="KV cache type (vLLM only).",
 )
 @click.option(
     "--max-num-seqs",
     default=_DEFAULT_MAX_NUM_SEQS,
     type=int,
-    required=True,
+    help="Maximum number of sequences (vLLM only).",
+)
+@click.option(
+    "--batch-size",
+    default=16,
+    type=int,
+    help="Batch size for processing audio files (OpenAI backend only).",
 )
 @click.option("--demo", "is_demo", is_flag=True, default=False, help="Run in demo mode.")
-def main(model: str, kv_cache_type: str, max_num_seqs: int, is_demo: bool) -> None:
+def main(model: str, backend: str, kv_cache_type: str, max_num_seqs: int, batch_size: int, is_demo: bool) -> None:
     """Main method."""
     logging.basicConfig(level=logging.INFO)
 
-    model_name = f"openai/whisper-{model}"
-    llm = initialize_vllm(model_name=model_name, kv_cache_type=kv_cache_type, max_num_seqs=max_num_seqs)
-    if is_demo:
-        _logger.info("Running in demo mode with reduced dataset size.")
-        demo(llm)
-        return
+    if backend == "openai":
+        _logger.info("Using OpenAI Whisper backend with model: %s", model)
+        openai_model = initialize_openai(model=model)
+        if is_demo:
+            _logger.info("Running in demo mode with reduced dataset size.")
+            demo_openai(openai_model)
+            return
 
-    wer, throughput = benchmark(llm=llm)
-    _logger.info("\n%sBENCHMARK RESULTS%s", "=" * 70, "=" * 70)
-    _logger.info(
-        "  WER: %.2f   |   throughput: %.2f reqs/sec  |   model: %-10s   |   kv_cache_type: %-4s  |  max_num_seqs: %s\n\n",
-        wer,
-        throughput,
-        model,
-        kv_cache_type,
-        max_num_seqs,
-    )
+        wer, throughput = benchmark_openai(model=openai_model, batch_size=batch_size)
+        _logger.info("\n%sBENCHMARK RESULTS%s", "=" * 70, "=" * 70)
+        _logger.info(
+                "  WER: %.2f   |   throughput: %.2f reqs/sec  |   model: %-10s   |   batch_size: %s   |   backend: openai\n\n",
+            wer,
+            throughput,
+            model,
+            batch_size,
+        )
+    else:
+        model_name = f"openai/whisper-{model}"
+        llm = initialize_vllm(model_name=model_name, kv_cache_type=kv_cache_type, max_num_seqs=max_num_seqs)
+        if is_demo:
+            _logger.info("Running in demo mode with reduced dataset size.")
+            demo_vllm(llm)
+            return
+
+        wer, throughput = benchmark_vllm(llm=llm)
+        _logger.info("\n%sBENCHMARK RESULTS%s", "=" * 70, "=" * 70)
+        _logger.info(
+            "  WER: %.2f   |   throughput: %.2f reqs/sec  |   model: %-10s   |   kv_cache_type: %-4s  |  max_num_seqs: %s\n\n",
+            wer,
+            throughput,
+            model,
+            kv_cache_type,
+            max_num_seqs,
+        )
 
 
 if __name__ == "__main__":
