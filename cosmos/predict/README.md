@@ -42,6 +42,8 @@ apt install -y git
 ```bash
 cd /
 git clone https://github.com/stackav-oss/ai-workloads.git
+cd /ai-workloads
+git checkout ugur/cosmos-benchmark
 cd /ai-workloads/cosmos/predict
 ```
 
@@ -82,7 +84,24 @@ cd /ai-workloads/cosmos/predict
 
 ### text2world
 ```bash
+   Overall Accuracy: 0.8070
+   Total Videos Evaluated: 1036
+   Model: Qwen/Qwen2.5-VL-72B-Instruct
+   ============================================================
 
+   CATEGORY-SPECIFIC SCORES:
+   ----------------------------------------
+   AV             : 0.6399
+   COMMON_SENSE   : 0.8559
+   HUMAN          : 0.7930
+   INDUSTRY       : 0.8417
+   MISC           : 0.8912
+   PHYSICS        : 0.9264
+   ROBOT          : 0.7636
+
+   Domain  score 0.807
+   Quality score 0.732
+   Overall score 0.770
 ```
 
 ### image2world
@@ -90,7 +109,7 @@ cd /ai-workloads/cosmos/predict
 
 ```
 
-## B200 Throughput Results
+## H100 Throughput Results
 
 ### text2world
 ```bash
@@ -163,30 +182,30 @@ Overall score 0.810
 
 ### text2world
 ```bash
-__ 1 GPU:
+   1 GPU:
    Average Time: 125.1838 seconds
    Std Deviation: 0.1794 seconds
 
-__ 2 GPUs:
+   2 GPUs:
    Average Time: 75.5894 seconds
    Std Deviation: 0.3107 seconds
 
-__ 4 GPUs:
+   4 GPUs:
    Average Time: 45.9414 seconds
    Std Deviation: 0.0681 seconds
 ```
 
 ### image2world
 ```bash
-__ 1 GPU:
+   1 GPU:
    Average Time: 125.9848 seconds
    Std Deviation: 0.2278 seconds
 
-__ 2 GPUs:
+   2 GPUs:
    Average Time: 77.4188 seconds
    Std Deviation: 0.1846 seconds
 
-__ 4 GPUs:
+   4 GPUs:
    Average Time: 46.8531 seconds
    Std Deviation: 0.1111 seconds
 ```
