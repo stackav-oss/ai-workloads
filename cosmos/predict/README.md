@@ -5,7 +5,7 @@ This repository contains scripts for running COSMOS inference and benchmark eval
 ## 🚀 Quick Start
 
 ### Environment Setup
-Make sure to use `nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04` image and set `HF_TOKEN`. 
+Make sure to use `nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04` image and set `HF_TOKEN` for your container. You need to have `git` installed to clone this directory:
 
 ### Example K8S container definition
 
@@ -31,6 +31,11 @@ containers:
 docker run --gpus=all -it --rm -e HF_TOKEN="$HF_TOKEN" nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 ```
 
+### Install git
+```bash
+apt update
+apt install -y git
+```
 
 ### Clone ai-workloads repository
 
@@ -72,6 +77,44 @@ cd /ai-workloads/cosmos/predict
 - **`aggregate_pai_bench_results.py`** - PAI-Bench results aggregation and final scoring
 - **`generate_throughput_summary.py`** - Throughput results compilation
 
+
+## H100 Evaluation Results
+
+### text2world
+```bash
+
+```
+
+### image2world
+```bash
+
+```
+
+## B200 Throughput Results
+
+### text2world
+```bash
+   1 GPU:
+   Average Time: 249.1129 seconds
+   Std Deviation: 0.4098 seconds
+
+   2 GPUs:
+   Average Time: 138.3463 seconds
+   Std Deviation: 0.5924 seconds
+
+   4 GPUs:
+   Average Time: 74.9248 seconds
+   Std Deviation: 0.1208 seconds
+
+   8 GPUs:
+   Average Time: 42.8290 seconds
+   Std Deviation: 0.4511 seconds
+```
+
+### image2world
+```bash
+
+```
 
 ## B200 Evaluation Results
 

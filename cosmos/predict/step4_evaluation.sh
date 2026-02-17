@@ -199,6 +199,9 @@ fi
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "Script located in: $ROOT_DIR"
 
+# Source UV environment
+source "$HOME/.local/bin/env"
+
 # Setup and validation
 check_hf_token
 get_gpu_info
