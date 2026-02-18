@@ -56,12 +56,14 @@ setup_python_environment() {
     # Deactivate any existing environment
     deactivate 2>/dev/null || true
     
+    # Fix VLLM version to 0.14.0 for compatibility
+    sed -i -e 's/"vllm>=0.10.1"/"vllm>=0.14.0"/g' "$PAI_DIR/pyproject.toml"
     # Handle GB200 specific requirements
     if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
         echo "Configuring for NVIDIA GB200"
         sed -i -e 's/"decord"/"decord2"/g' -e 's/qwen-vl-utils\[decord\]/qwen-vl-utils/g' "$PAI_DIR/pyproject.toml"
     fi
-    
+
     # Sync environment
     if ! uv sync --python 3.10; then
         echo "Error: Failed to sync Python environment" >&2
@@ -80,6 +82,8 @@ setup_python_environment() {
         echo "Installing PyTorch with CUDA 13.0 for NVIDIA GB200"
         uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
         uv pip install --reinstall numpy==1.26.4
+    else
+        uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
     fi
     
     # Verify PyTorch installation
