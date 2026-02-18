@@ -120,11 +120,7 @@ def prepare_inference_samples(inference_type: str) -> List[InferenceArguments]:
     """
     pai_data = load_benchmark_data()
     inference_samples = []
-    ugur_i = 9
     for item in pai_data:
-        ugur_i += 1
-        if ugur_i % 200 != 0:
-            continue
         try:
             video_id = item["video_id"]
             prompt_en = item["prompt_en"]
