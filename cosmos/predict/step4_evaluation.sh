@@ -63,7 +63,7 @@ setup_python_environment() {
     fi
     
     # Sync environment
-    if ! uv sync; then
+    if ! uv sync --python 3.10; then
         echo "Error: Failed to sync Python environment" >&2
         exit 1
     fi
