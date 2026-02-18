@@ -77,6 +77,8 @@ cd /ai-workloads/cosmos/predict
 - **`aggregate_pai_bench_results.py`** - PAI-Bench results aggregation and final scoring
 - **`generate_throughput_summary.py`** - Throughput results compilation
 
+## Reference Paper
+https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 
 ## H100 Evaluation Results
 
