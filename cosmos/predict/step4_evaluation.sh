@@ -57,7 +57,7 @@ setup_python_environment() {
     deactivate 2>/dev/null || true
     
     # Fix VLLM version to 0.14.0 for compatibility
-    sed -i -e 's/"vllm>=0.10.1"/"vllm>=0.14.0"/g' "$PAI_DIR/pyproject.toml"
+    sed -i -e 's/"vllm>=0.10.1"/"vllm==0.14.0"/g' "$PAI_DIR/pyproject.toml"
     # Handle GB200 specific requirements
     if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
         echo "Configuring for NVIDIA GB200"
