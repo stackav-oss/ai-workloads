@@ -123,7 +123,7 @@ def prepare_inference_samples(inference_type: str) -> List[InferenceArguments]:
     ugur_i = 9
     for item in pai_data:
         ugur_i += 1
-        if ugur_i % 10 != 0:
+        if ugur_i % 50 != 0:
             continue
         try:
             video_id = item["video_id"]
