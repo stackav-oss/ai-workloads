@@ -2,43 +2,68 @@
 # COSMOS Setup Script
 # Installs system packages and required repositories
 
-set -euo pipefail  # Exit on error, undefined variables, and pipe failures
+set -euo pipefail
 
 # Configuration
-COSMOS_COMMIT="9557c1a"
-PHYSICAL_AI_BENCH_COMMIT="a72c2e9"
-INSTALL_DIR="/"
+readonly COSMOS_COMMIT="9557c1a"
+readonly PHYSICAL_AI_BENCH_COMMIT="a72c2e9"
+readonly INSTALL_DIR="/"
 
-echo "Starting COSMOS environment setup..."
-
-# SYSTEM PACKAGES
+# System-level configurations
 export DEBIAN_FRONTEND=noninteractive
 export TZ=America/New_York
 
-echo "Updating system packages..."
-apt update
-apt install -y git curl vim git-lfs curl ffmpeg libx11-dev tree wget tmux
+# Helper: Clone repo and checkout specific commit
+clone_and_checkout() {
+	local repo_url=$1
+	local commit_hash=$2
+	local repo_name=$(basename "$repo_url" .git)
 
+	echo "--- Setting up $repo_name ---"
+	cd "$INSTALL_DIR"
+	if [ ! -d "$repo_name" ]; then
+		git clone "$repo_url"
+	fi
+	cd "$repo_name"
+	git checkout "$commit_hash"
+	echo "Finished setting up $repo_name at $commit_hash"
+	echo
+}
+
+# --- Main Setup Process ---
+
+echo "Starting COSMOS environment setup..."
+echo
+
+# 1. System Packages
+echo "Updating system packages..."
+apt-get update
+apt-get install -y --no-install-recommends \
+	curl \
+	ffmpeg \
+	git \
+	git-lfs \
+	libx11-dev \
+	tmux \
+	tree \
+	vim \
+	wget
+
+# 2. Git LFS Initial Configuration
 echo "Configuring Git LFS..."
 git lfs install
 
-echo "Installing UV package manager..."
-curl -LsSf https://astral.sh/uv/install.sh | sh
-source "$HOME/.local/bin/env"
+# 3. Package Manager: uv
+if ! command -v uv &> /dev/null; then
+	echo "Installing UV package manager..."
+	curl -LsSf https://astral.sh/uv/install.sh | sh
+	source "$HOME/.local/bin/env"
+fi
 uv --version
 
-
-echo "Cloning cosmos-predict2.5 repository..."
-cd "$INSTALL_DIR"
-git clone https://github.com/nvidia-cosmos/cosmos-predict2.5.git
-cd cosmos-predict2.5
-git checkout "$COSMOS_COMMIT"
-
-echo "Cloning physical-ai-bench repository..."
-cd "$INSTALL_DIR"
-git clone https://github.com/SHI-Labs/physical-ai-bench.git
-cd physical-ai-bench
-git checkout "$PHYSICAL_AI_BENCH_COMMIT"
+# 4. Clone Repositories
+clone_and_checkout "https://github.com/nvidia-cosmos/cosmos-predict2.5.git" "$COSMOS_COMMIT"
+clone_and_checkout "https://github.com/SHI-Labs/physical-ai-bench.git" "$PHYSICAL_AI_BENCH_COMMIT"
 
 echo "COSMOS environment setup completed successfully!"
 echo "Repositories installed in: $INSTALL_DIR"
