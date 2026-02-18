@@ -24,8 +24,8 @@ echo "Detected GPU: '$gpu_model'"
 
 available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 echo "Available GPUs: $available_gpus"
-if [ $available_gpus -lt 4 ]; then
-    echo "Error: At least 4 NVIDIA GPUs are required"
+if [ $available_gpus -lt 1 ]; then
+    echo "Error: At least 1 NVIDIA GPUs are required"
     exit 1
 fi
 
