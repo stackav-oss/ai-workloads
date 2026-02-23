@@ -82,6 +82,15 @@ https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 
 ## H100 Evaluation Results
 
+### text2world evaluation scores:
+|            | Domain Score | Quality Score | Overall Score |
+|------------|--------------|---------------|---------------|
+| Paper      | 0.804        | 0.732         | 0.768         |
+| H100       | 0.807        | 0.732         | 0.770         |
+| B200       | 0.802        | 0.732         | 0.767         |
+
+
+
 ### text2world
 ```bash
 Overall Accuracy: 0.8070
