@@ -82,6 +82,13 @@ https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 
 ## Evaluation Results
 
+```bash
+Model: Cosmos-Predict2.5-2B [post-train]
+Output video dimensions: 1280×704 
+Output video frame rate: 16
+Output video length: 5 seconds
+```
+
 ### text2world evaluation scores:
 |            | Domain Score | Quality Score | Overall Score |
 |------------|--------------|---------------|---------------|
@@ -97,7 +104,8 @@ https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 | B200       | 0.39.        | 0.780         | 0.10          |
 
 
-## Throughput Results
+## Processing Times
+To ensure accurate measurements, we first ran a single sample to warm up the inference pipeline. We then collected three additional samples to calculate the processing times, with the Guardrail model disabled.
 
 ### text2world
 
@@ -160,7 +168,7 @@ Quality score 0.780
 Overall score 0.808
 ```
 
-## H100 Detailed Throughput Results
+## H100 Detailed Processing Times
 
 ### text2world
 ```bash
@@ -243,7 +251,7 @@ Quality score 0.780
 Overall score 0.810
 ```
 
-## B200 Detailed Throughput Results
+## B200 Detailed Processing Times
 
 ### text2world
 ```bash
