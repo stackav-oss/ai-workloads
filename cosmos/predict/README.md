@@ -80,7 +80,7 @@ cd /ai-workloads/cosmos/predict
 ## Reference Paper
 https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 
-## H100 Evaluation Results
+## Evaluation Results
 
 ### text2world evaluation scores:
 |            | Domain Score | Quality Score | Overall Score |
@@ -89,7 +89,14 @@ https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 | H100       | 0.807        | 0.732         | 0.770         |
 | B200       | 0.802        | 0.732         | 0.767         |
 
+### image2world evaluation scores:
+|            | Domain Score | Quality Score | Overall Score |
+|------------|--------------|---------------|---------------|
+| Paper      | 0.840        | 0.779         | 0.810         |
+| H100       | 0.836.       | 0.780         | 0.808         |
+| B200       | 0.39.        | 0.780         | 0.10          |
 
+## H100 Detailed Evaluation Results
 
 ### text2world
 ```bash
@@ -131,7 +138,7 @@ Quality score 0.780
 Overall score 0.808
 ```
 
-## H100 Throughput Results
+## H100 Detailed Throughput Results
 
 ### text2world
 ```bash
@@ -171,7 +178,7 @@ Average Time: 44.0013 seconds
 Std Deviation: 0.3202 seconds
 ```
 
-## B200 Evaluation Results
+## B200 Detailed Evaluation Results
 
 ### text2world
 ```bash
@@ -214,7 +221,7 @@ Quality score 0.780
 Overall score 0.810
 ```
 
-## B200 Throughput Results
+## B200 Detailed Throughput Results
 
 ### text2world
 ```bash
