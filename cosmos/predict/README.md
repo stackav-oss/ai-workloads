@@ -96,6 +96,28 @@ https://arxiv.org/pdf/2511.00062 Table 10 and Table 11
 | H100       | 0.836.       | 0.780         | 0.808         |
 | B200       | 0.39.        | 0.780         | 0.10          |
 
+
+## Throughput Results
+
+### text2world
+
+| **TEXT2WORLD** | **H100 (seconds per video)** | **B200 (seconds per video)** |
+|----------------|-------------------------------|-------------------------------|
+| **1 GPU**      | 249                           | 125                           |
+| **2 GPU**      | 138                           | 75                            |
+| **4 GPU**      | 74                            | 45                            |
+| **8 GPU**      | 42                            | N/A                           |
+
+### image2world
+
+| **IMAGE2WORLD** | **H100 (seconds per video)** | **B200 (seconds per video)** |
+|-----------------|-------------------------------|-------------------------------|
+| **1 GPU**       | 249                           | 125                           |
+| **2 GPU**       | 139                           | 77                            |
+| **4 GPU**       | 76                            | 46                            |
+| **8 GPU**       | 44                            | N/A                           |
+
+
 ## H100 Detailed Evaluation Results
 
 ### text2world
