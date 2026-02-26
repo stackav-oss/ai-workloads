@@ -7,6 +7,7 @@ set -euo pipefail  # Exit on error, undefined variables, and pipe failures
 # Configuration
 DATASETS_DIR="/datasets"
 PHYSICAL_AI_BENCH_DATASET="shi-labs/physical-ai-bench-generation"
+PHYSICAL_AI_BENCH_CONDITIONAL="shi-labs/physical-ai-bench-conditional-generation"
 
 # Functions
 check_hf_token() {
