@@ -72,12 +72,12 @@ def main(
     print("="*50, "overrides")
     print(args.overrides)
     
-    inference_samples, batch_hint_keys = InferenceArguments.from_files(args.input_files, overrides=args.overrides)
-    print("="*50, "inference_samples")
-    print(inference_samples)
-    print("="*50, "batch_hint_keys")
-    print(batch_hint_keys)
-    print("="*50)
+    #inference_samples, batch_hint_keys = InferenceArguments.from_files(args.input_files, overrides=args.overrides)
+    #print("="*50, "inference_samples")
+    #print(inference_samples)
+    #print("="*50, "batch_hint_keys")
+    #print(batch_hint_keys)
+    #print("="*50)
     #return
 
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
@@ -103,7 +103,7 @@ def main(
     sample = InferenceArguments(**base_args)
     inference_samples = [sample]
 
-    inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
+    inference = Control2WorldInference(args.setup, batch_hint_keys="depth")
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
 
