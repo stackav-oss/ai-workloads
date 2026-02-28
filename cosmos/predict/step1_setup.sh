@@ -6,6 +6,7 @@ set -euo pipefail
 
 # Configuration
 readonly COSMOS_COMMIT="9557c1a"
+readonly COSMOS_TRANSFER_COMMIT="67b6d48"
 readonly PHYSICAL_AI_BENCH_COMMIT="a72c2e9"
 readonly INSTALL_DIR="/"
 
@@ -64,6 +65,8 @@ uv --version
 # 4. Clone Repositories
 clone_and_checkout "https://github.com/nvidia-cosmos/cosmos-predict2.5.git" "$COSMOS_COMMIT"
 clone_and_checkout "https://github.com/SHI-Labs/physical-ai-bench.git" "$PHYSICAL_AI_BENCH_COMMIT"
+clone_and_checkout "https://github.com/nvidia-cosmos/cosmos-transfer2.5" "$COSMOS_TRANSFER_COMMIT"
+
 
 echo "COSMOS environment setup completed successfully!"
 echo "Repositories installed in: $INSTALL_DIR"
