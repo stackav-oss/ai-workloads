@@ -94,16 +94,17 @@ def main(
         #"seed": DEFAULT_SEED,
         #"guidance": DEFAULT_GUIDANCE
         "video_path": "/datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4",
-        "edge": EdgeConfig(),
-        "depth": None, #DepthConfig(),
+        "edge": None, #EdgeConfig(),
+        "depth": DepthConfig(),
         "vis": None,
         "seg": None
     }
+    batch_hint_keys=['depth']
     
     sample = InferenceArguments(**base_args)
     inference_samples = [sample]
 
-    inference = Control2WorldInference(args.setup, batch_hint_keys="edge")
+    inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
 
