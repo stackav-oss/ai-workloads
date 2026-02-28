@@ -109,7 +109,7 @@ def main(
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
             print(sample)
-        break
+        
 
         
 
