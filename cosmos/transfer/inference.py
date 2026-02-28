@@ -112,7 +112,7 @@ def main(
         break
 
         
-    return
+
 
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
