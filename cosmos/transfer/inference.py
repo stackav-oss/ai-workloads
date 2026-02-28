@@ -103,7 +103,7 @@ def main(
     sample = InferenceArguments(**base_args)
     inference_samples = [sample]
 
-    inference = Control2WorldInference(args.setup) #batch_hint_keys="depth"
+    inference = Control2WorldInference(args.setup, batch_hint_keys="depth")
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
 
