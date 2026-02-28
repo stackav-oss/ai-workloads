@@ -43,7 +43,7 @@ else
 fi
 source .venv/bin/activate
 
-torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/depth/inference"
+torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/edge/inference"
 #torchrun --nproc_per_node=$available_gpus  --master_port=12341 examples/inference.py -i assets/robot_example/depth/robot_depth_spec.json -o outputs/depth
 
 deactivate

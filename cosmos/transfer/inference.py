@@ -59,27 +59,14 @@ class Args(pydantic.BaseModel):
 def main(
     args: Args,
 ):
-    
-    #args.setup.disable_guardrails=True
-    #args.setup.offload_guardrail_models=True
-
     print("="*50, "args")
     print(args)
-    #print("="*50, "input_files")
-    #print(args.input_files)
     print("="*50, "setup")
     print(args.setup)
     print("="*50, "overrides")
     print(args.overrides)
     
     #inference_samples, batch_hint_keys = InferenceArguments.from_files(args.input_files, overrides=args.overrides)
-    #print("="*50, "inference_samples")
-    #print(inference_samples)
-    #print("="*50, "batch_hint_keys")
-    #print(batch_hint_keys)
-    #print("="*50)
-    #return
-
     inference_samples = []
     for i in range(600):
         task_id = f"task_{i:04d}"
@@ -87,8 +74,8 @@ def main(
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-            "edge": None,
-            "depth": DepthConfig(),
+            "edge": EdgeConfig(),
+            "depth": None,
             "vis": None,
             "seg": None
         }
@@ -101,8 +88,8 @@ def main(
                 "name": f"{task_id}_caption{j}",
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
                 "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-                "edge": None,
-                "depth": DepthConfig(),
+                "edge": EdgeConfig(),
+                "depth": None,
                 "vis": None,
                 "seg": None
             }
@@ -111,12 +98,10 @@ def main(
             print(sample)
         
 
-        
-
-
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
-    batch_hint_keys=['depth']
+    CONTROL_KEYS = ["edge", "vis", "depth", "seg"]
+    batch_hint_keys=['edge']
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
