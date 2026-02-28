@@ -80,14 +80,28 @@ def main(
     print("="*50)
     #return
 
-    if args.setup.benchmark:
-        if len(inference_samples) == 1:
-            inference_samples = inference_samples * 4
-            log.info(f"Repeating inference sample 4 times for benchmarking.")
-        # assert len(inference_samples) > 1, "Benchmarking must be run for more than 1 sample."
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
 
     from cosmos_transfer2.inference import Control2WorldInference
+
+
+    base_args = {
+        "name": "video_id",
+        "prompt": "random world, it is a video of a physical process. The video is called {video_id}.",
+        #"inference_type": inference_type,
+        #"num_output_frames": DEFAULT_NUM_OUTPUT_FRAMES,
+        #"num_steps": DEFAULT_NUM_STEPS,
+        #"seed": DEFAULT_SEED,
+        #"guidance": DEFAULT_GUIDANCE
+        "video_path": "/datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4",
+        "edge": None,
+        "depth": None,
+        "vis": None,
+        "seg": None
+    }
+    
+    sample = InferenceArguments(**base_args)
+    inference_samples = [sample]
 
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
