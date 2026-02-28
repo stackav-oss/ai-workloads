@@ -80,9 +80,6 @@ def main(
     #print("="*50)
     #return
 
-    init_output_dir(args.setup.output_dir, profile=args.setup.profile)
-
-    from cosmos_transfer2.inference import Control2WorldInference
     inference_samples = []
     for i in range(600):
         task_id = f"task_{i:04d}"
@@ -117,6 +114,8 @@ def main(
         
     return
 
+    from cosmos_transfer2.inference import Control2WorldInference
+    init_output_dir(args.setup.output_dir, profile=args.setup.profile)
     batch_hint_keys=['depth']
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
