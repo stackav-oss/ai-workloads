@@ -43,6 +43,6 @@ else
 fi
 source .venv/bin/activate
 
-torchrun --nproc_per_node=$available_gpus "/$ROOT_DIR/inference.py" --inference-type $inference_type --disable-guardrails -o "/results/transfer/depth/inference"
+torchrun --nproc_per_node=$available_gpus "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/depth/inference"
 
 deactivate
