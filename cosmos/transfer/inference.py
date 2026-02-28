@@ -65,8 +65,8 @@ def main(
 
     print("="*50, "args")
     print(args)
-    print("="*50, "input_files")
-    print(args.input_files)
+    #print("="*50, "input_files")
+    #print(args.input_files)
     print("="*50, "setup")
     print(args.setup)
     print("="*50, "overrides")
