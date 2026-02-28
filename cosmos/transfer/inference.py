@@ -83,27 +83,41 @@ def main(
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
 
     from cosmos_transfer2.inference import Control2WorldInference
+    inference_samples = []
+    for i in range(600):
+        task_id = f"task_{i:04d}"
+        base_args = {
+            "name": task_id,
+            "prompts_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
+            "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
+            "edge": None,
+            "depth": DepthConfig(),
+            "vis": None,
+            "seg": None
+        }
+        sample = InferenceArguments(**base_args)
+        inference_samples.append(sample)
+        print(sample)
 
+        for j in range(1, 6):
+            base_args = {
+                "name": f"{task_id}_caption{j}",
+                "prompts_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
+                "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
+                "edge": None,
+                "depth": DepthConfig(),
+                "vis": None,
+                "seg": None
+            }
+            sample = InferenceArguments(**base_args)
+            inference_samples.append(sample)
+            print(sample)
+        break
 
-    base_args = {
-        "name": "video_id",
-        "prompt": "random world, it is a video of a physical process. The video is called {video_id}.",
-        #"inference_type": inference_type,
-        #"num_output_frames": DEFAULT_NUM_OUTPUT_FRAMES,
-        #"num_steps": DEFAULT_NUM_STEPS,
-        #"seed": DEFAULT_SEED,
-        #"guidance": DEFAULT_GUIDANCE
-        "video_path": "/datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4",
-        "edge": None, #EdgeConfig(),
-        "depth": DepthConfig(),
-        "vis": None,
-        "seg": None
-    }
+        
+    return
+
     batch_hint_keys=['depth']
-    
-    sample = InferenceArguments(**base_args)
-    inference_samples = [sample]
-
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
