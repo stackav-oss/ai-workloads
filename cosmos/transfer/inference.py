@@ -85,7 +85,7 @@ def main(
         task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
-            "prompts_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
+            "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
             "edge": None,
             "depth": DepthConfig(),
@@ -99,7 +99,7 @@ def main(
         for j in range(1, 6):
             base_args = {
                 "name": f"{task_id}_caption{j}",
-                "prompts_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
+                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
                 "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
                 "edge": None,
                 "depth": DepthConfig(),
