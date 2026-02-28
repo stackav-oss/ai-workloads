@@ -47,11 +47,6 @@ ControlUnion = Annotated[
 class Args(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
 
-    input_files: Annotated[list[Path], tyro.conf.arg(aliases=("-i",))]
-    """Path(s) to the inference parameter file(s).
-    If multiple files are provided, run "batch" inference. The model will be loaded once and all samples run sequentially.
-    If there are different hint keys across the batch, the multicontrol model will be used regardless of the each sample's hint keys.
-    """
     setup: SetupArguments
     """Setup arguments. These can only be provided via CLI."""
     overrides: InferenceOverrides
