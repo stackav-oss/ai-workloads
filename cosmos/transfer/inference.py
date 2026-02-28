@@ -94,8 +94,8 @@ def main(
         #"seed": DEFAULT_SEED,
         #"guidance": DEFAULT_GUIDANCE
         "video_path": "/datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4",
-        "edge": None,
-        "depth": DepthConfig(),
+        "edge": EdgeConfig(),
+        "depth": None, #DepthConfig(),
         "vis": None,
         "seg": None
     }
