@@ -33,7 +33,7 @@ from cosmos_transfer2.config import (
     is_rank0,
 )
 
-class AllConfig(EdgeConfig, DepthConfig, BlurConfig, SegConfig):
+class AllConfig(pydantic.BaseModel):
     pass
 
 ControlUnion = Annotated[
@@ -73,7 +73,6 @@ def main(
         print("-" * 30)
     print("="*50 + "\n")
 
-    return
     
     inference_samples = []
     for i in range(600):
