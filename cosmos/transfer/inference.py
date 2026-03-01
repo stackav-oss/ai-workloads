@@ -33,12 +33,16 @@ from cosmos_transfer2.config import (
     is_rank0,
 )
 
+class AllConfig(EdgeConfig, DepthConfig, BlurConfig, SegConfig):
+    pass
+
 ControlUnion = Annotated[
     Union[
         Annotated[EdgeConfig, tyro.conf.subcommand("edge")],
         Annotated[DepthConfig, tyro.conf.subcommand("depth")],
         Annotated[BlurConfig, tyro.conf.subcommand("vis")],
         Annotated[SegConfig, tyro.conf.subcommand("seg")],
+        Annotated[AllConfig, tyro.conf.subcommand("all")],
     ],
     tyro.conf.ConsolidateSubcommandArgs,
 ]
@@ -78,10 +82,10 @@ def main(
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-            "edge": EdgeConfig() if isinstance(args.control, EdgeConfig) else None,
-            "depth": DepthConfig() if isinstance(args.control, DepthConfig) else None,
-            "vis": BlurConfig() if isinstance(args.control, BlurConfig) else None,
-            "seg": SegConfig() if isinstance(args.control, SegConfig) else None
+            "edge": EdgeConfig() if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+            "depth": DepthConfig() if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+            "vis": BlurConfig() if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+            "seg": SegConfig() if isinstance(args.control, (AllConfig, SegConfig)) else None
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
@@ -93,10 +97,10 @@ def main(
                 "name": f"{task_id}_caption{j}",
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
                 "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-                "edge": EdgeConfig() if isinstance(args.control, EdgeConfig) else None,
-                "depth": DepthConfig() if isinstance(args.control, DepthConfig) else None,
-                "vis": BlurConfig() if isinstance(args.control, BlurConfig) else None,
-                "seg": SegConfig() if isinstance(args.control, SegConfig) else None
+                "edge": EdgeConfig() if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+                "depth": DepthConfig() if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+                "vis": BlurConfig() if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+                "seg": SegConfig() if isinstance(args.control, (AllConfig, SegConfig)) else None
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
@@ -114,6 +118,8 @@ def main(
         batch_hint_keys.append('vis')
     if isinstance(args.control, SegConfig):
         batch_hint_keys.append('seg')
+    if isinstance(args.control, AllConfig):
+        batch_hint_keys.extend(['edge', 'depth', 'vis', 'seg'])
     print(f"Batch hint keys: {batch_hint_keys}")
 
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
