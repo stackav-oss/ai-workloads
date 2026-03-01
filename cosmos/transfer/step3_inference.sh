@@ -6,6 +6,18 @@ if [[ -z "$HF_TOKEN" ]]; then
   exit 1
 fi
 
+if [ $# -eq 0 ]; then
+    echo "Error: Please provide an control type [edge|vis|depth|seg]"
+    exit 1
+fi
+
+control_type=$1
+if [ "$control_type" != "edge" ] && [ "$control_type" != "vis" ] && [ "$control_type" != "depth" ] && [ "$control_type" != "seg" ]; then
+    echo "Error: Invalid control type. Must be 'edge', 'vis', 'depth', or 'seg'"
+    exit 1
+fi
+echo "Control type: $control_type"
+
 gpu_model=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits -i 0)
 echo "Detected GPU: '$gpu_model'"
 
@@ -22,13 +34,13 @@ ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "The script is located in: ${ROOT_DIR}"
 
 
-echo  "Running inference and benchmarking for inference type: $inference_type"
+echo  "Running inference and benchmarking for control type: $control_type"
 
 # Create result directories
-mkdir -p /results/transfer/edge/inference
+mkdir -p /results/transfer/$control_type/inference
 
 # clean previous results
-rm /results/transfer/edge/inference/*  > /dev/null 2>&1  || true
+rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
 
 
 # Run inference using custom pyton script mounted from repo
@@ -45,6 +57,6 @@ else
 fi
 source .venv/bin/activate
 
-torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/edge/inference"
+torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference"
 
 deactivate

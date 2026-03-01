@@ -65,8 +65,8 @@ def main(
     print(args.setup)
     print("="*50, "overrides")
     print(args.overrides)
+    return
     
-    #inference_samples, batch_hint_keys = InferenceArguments.from_files(args.input_files, overrides=args.overrides)
     inference_samples = []
     for i in range(600):
         task_id = f"task_{i:04d}"
@@ -81,8 +81,8 @@ def main(
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
-        print(sample)
 
+        # caption variations
         for j in range(1, 6):
             base_args = {
                 "name": f"{task_id}_caption{j}",
@@ -95,7 +95,6 @@ def main(
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
-            print(sample)
         
 
     from cosmos_transfer2.inference import Control2WorldInference
