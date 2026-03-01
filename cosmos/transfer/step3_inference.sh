@@ -12,8 +12,8 @@ if [ $# -eq 0 ]; then
 fi
 
 control_type=$1
-if [ "$control_type" != "edge" ] && [ "$control_type" != "vis" ] && [ "$control_type" != "depth" ] && [ "$control_type" != "seg" ]; then
-    echo "Error: Invalid control type. Must be 'edge', 'vis', 'depth', or 'seg'"
+if [ "$control_type" != "edge" ] && [ "$control_type" != "vis" ] && [ "$control_type" != "depth" ] && [ "$control_type" != "seg" ] && [ "$control_type" != "all" ]; then
+    echo "Error: Invalid control type. Must be 'edge', 'vis', 'depth', 'seg', or 'all'"
     exit 1
 fi
 echo "Control type: $control_type"
@@ -57,6 +57,6 @@ else
 fi
 source .venv/bin/activate
 
-torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference" control:$control_type control:vis control:edge 
+torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference" control:$control_type
 
 deactivate
