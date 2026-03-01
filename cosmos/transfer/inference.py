@@ -68,6 +68,8 @@ def main(
         print(value)
         print("-" * 30)
     print("="*50 + "\n")
+
+    return
     
     inference_samples = []
     for i in range(600):
@@ -102,8 +104,18 @@ def main(
 
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
-    CONTROL_KEYS = ["edge", "vis", "depth", "seg"]
-    batch_hint_keys=['edge']
+    #CONTROL_KEYS = ["edge", "vis", "depth", "seg"]
+    batch_hint_keys = []
+    if isinstance(args.control, EdgeConfig):
+        batch_hint_keys.append('edge')
+    if isinstance(args.control, DepthConfig):
+        batch_hint_keys.append('depth')
+    if isinstance(args.control, BlurConfig):
+        batch_hint_keys.append('vis')
+    if isinstance(args.control, SegConfig):
+        batch_hint_keys.append('seg')
+    print(f"Batch hint keys: {batch_hint_keys}")
+
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
