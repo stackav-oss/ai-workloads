@@ -59,13 +59,14 @@ class Args(pydantic.BaseModel):
 def main(
     args: Args,
 ):
-    print("="*50, "args")
-    print(args)
-    print("="*50, "setup")
-    print(args.setup)
-    print("="*50, "overrides")
-    print(args.overrides)
-    return
+    print("\n" + "="*50)
+    print("INFERENCE CONFIGURATION")
+    print("="*50)
+    for field, value in args.__dict__.items():
+        print(f"[{field.upper()}]:")
+        print(value)
+        print("-" * 30)
+    print("="*50 + "\n")
     
     inference_samples = []
     for i in range(600):
