@@ -59,6 +59,7 @@ class Args(pydantic.BaseModel):
 def main(
     args: Args,
 ):
+    print(args)
     print("\n" + "="*50)
     print("INFERENCE CONFIGURATION")
     print("="*50)
@@ -75,10 +76,10 @@ def main(
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-            "edge": EdgeConfig(),
-            "depth": None,
-            "vis": None,
-            "seg": None
+            #"edge": EdgeConfig(),
+            #"depth": None,
+            #"vis": None,
+            #"seg": None
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
@@ -89,10 +90,10 @@ def main(
                 "name": f"{task_id}_caption{j}",
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
                 "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-                "edge": EdgeConfig(),
-                "depth": None,
-                "vis": None,
-                "seg": None
+                #"edge": EdgeConfig(),
+                #"depth": None,
+                #"vis": None,
+                #"seg": None
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
