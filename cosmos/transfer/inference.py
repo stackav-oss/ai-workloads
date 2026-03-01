@@ -76,13 +76,14 @@ def main(
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-            #"edge": EdgeConfig(),
-            #"depth": None,
-            #"vis": None,
-            #"seg": None
+            "edge": EdgeConfig() if isinstance(args.control, EdgeConfig) else None,
+            "depth": DepthConfig() if isinstance(args.control, DepthConfig) else None,
+            "vis": BlurConfig() if isinstance(args.control, BlurConfig) else None,
+            "seg": SegConfig() if isinstance(args.control, SegConfig) else None
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
+        print(sample)
 
         # caption variations
         for j in range(1, 6):
@@ -90,10 +91,10 @@ def main(
                 "name": f"{task_id}_caption{j}",
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
                 "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-                #"edge": EdgeConfig(),
-                #"depth": None,
-                #"vis": None,
-                #"seg": None
+                "edge": EdgeConfig() if isinstance(args.control, EdgeConfig) else None,
+                "depth": DepthConfig() if isinstance(args.control, DepthConfig) else None,
+                "vis": BlurConfig() if isinstance(args.control, BlurConfig) else None,
+                "seg": SegConfig() if isinstance(args.control, SegConfig) else None
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
