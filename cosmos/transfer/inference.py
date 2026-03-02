@@ -80,9 +80,9 @@ def main(
         print(f"{output_mp4=}")
         
         if output_mp4.exists():
-            log.info(f"Output for task_{i:04d} already exists, skipping inference.")
+            print(f"Output for task_{i:04d} already exists, skipping inference.")
             continue
-        
+
         task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
@@ -95,7 +95,7 @@ def main(
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
-        print(sample)
+        #print(sample)
         continue
 
         # caption variations
