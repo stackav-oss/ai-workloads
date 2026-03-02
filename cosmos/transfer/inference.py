@@ -77,8 +77,6 @@ def main(
     inference_samples = []
     for i in range(600):
         output_mp4 = args.setup.output_dir / f"task_{i:04d}.mp4"
-        print(f"{output_mp4=}")
-        
         if output_mp4.exists():
             print(f"Output for task_{i:04d} already exists, skipping inference.")
             continue
