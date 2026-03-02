@@ -76,6 +76,9 @@ def main(
     
     inference_samples = []
     for i in range(600):
+        output_mp4 = args.setup.output_dir / f"task_{i:04d}.mp4"
+        print(f"{output_mp4=}")
+        return
         task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
