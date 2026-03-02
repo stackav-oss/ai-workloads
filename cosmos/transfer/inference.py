@@ -81,13 +81,21 @@ def main(
             print(f"Output for task_{i:04d} already exists, skipping inference.")
             continue
 
+        control_video_mapping = {
+            "blur": "blur",
+            "edge": "canny",
+            "depth": "depth_vids",
+            "seg": "sam2_vids",
+        }
+
+        
         task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
             "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
             "edge": EdgeConfig() if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-            "depth": DepthConfig() if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+            "depth": DepthConfig(control_path="/datasets/physical-ai-bench-conditional-generation/depth_vids") if isinstance(args.control, (AllConfig, DepthConfig)) else None,
             "vis": BlurConfig() if isinstance(args.control, (AllConfig, BlurConfig)) else None,
             "seg": SegConfig() if isinstance(args.control, (AllConfig, SegConfig)) else None
         }
