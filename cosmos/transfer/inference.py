@@ -92,7 +92,8 @@ def main(
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
         print(sample)
-
+        continue
+    
         # caption variations
         for j in range(1, 6):
             base_args = {
