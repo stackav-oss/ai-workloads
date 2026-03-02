@@ -78,7 +78,11 @@ def main(
     for i in range(600):
         output_mp4 = args.setup.output_dir / f"task_{i:04d}.mp4"
         print(f"{output_mp4=}")
-        return
+        
+        if output_mp4.exists():
+            log.info(f"Output for task_{i:04d} already exists, skipping inference.")
+            continue
+        
         task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
@@ -93,7 +97,7 @@ def main(
         inference_samples.append(sample)
         print(sample)
         continue
-    
+
         # caption variations
         for j in range(1, 6):
             base_args = {
