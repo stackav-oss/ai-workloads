@@ -88,7 +88,7 @@ def main(
             print(f"Output for {task_id} already exists, skipping inference.")
             continue
 
-        original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
+        original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
         depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4")
         edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4")
         blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4")
