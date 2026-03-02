@@ -73,35 +73,38 @@ def main(
         print("-" * 30)
     print("="*50 + "\n")
 
-    
+    # control_video_mapping = {
+    #     "blur": "blur",
+    #     "edge": "canny",
+    #     "depth": "depth_vids",
+    #     "seg": "sam2_vids",
+    # }
+
     inference_samples = []
     for i in range(600):
-        output_mp4 = args.setup.output_dir / f"task_{i:04d}.mp4"
-        if output_mp4.exists():
-            print(f"Output for task_{i:04d} already exists, skipping inference.")
+        task_id = f"task_{i:04d}"
+        output_video = args.setup.output_dir / f"{task_id}.mp4"
+        if output_video.exists():
+            print(f"Output for {task_id} already exists, skipping inference.")
             continue
 
-        control_video_mapping = {
-            "blur": "blur",
-            "edge": "canny",
-            "depth": "depth_vids",
-            "seg": "sam2_vids",
-        }
+        original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
+        depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4")
+        edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4")
+        blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4")
+        seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4")
 
-        
-        task_id = f"task_{i:04d}"
         base_args = {
             "name": task_id,
             "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
-            "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-            "edge": EdgeConfig() if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-            "depth": DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None,
-            "vis": BlurConfig() if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-            "seg": SegConfig() if isinstance(args.control, (AllConfig, SegConfig)) else None
+            "video_path": original_video,
+            "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+            "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+            "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+            "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
         }
         sample = InferenceArguments(**base_args)
         inference_samples.append(sample)
-        #print(sample)
         continue
 
         # caption variations
@@ -109,11 +112,11 @@ def main(
             base_args = {
                 "name": f"{task_id}_caption{j}",
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
-                "video_path": f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4",
-                "edge": EdgeConfig() if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-                "depth": DepthConfig() if isinstance(args.control, (AllConfig, DepthConfig)) else None,
-                "vis": BlurConfig() if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-                "seg": SegConfig() if isinstance(args.control, (AllConfig, SegConfig)) else None
+                "video_path": original_video,
+                "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+                "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+                "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)

@@ -40,7 +40,7 @@ echo  "Running inference and benchmarking for control type: $control_type"
 mkdir -p /results/transfer/$control_type/inference
 
 # clean previous results
-# rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
+rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
 
 
 # Run inference using custom pyton script mounted from repo
