@@ -103,10 +103,10 @@ def main(
         # caption variations
         for j in range(1, 6):
             variant_id = f"{task_id}_caption{j}"
+            output_video = args.setup.output_dir / f"{variant_id}.mp4"
             if output_video.exists():
                 print(f"Output for {variant_id} already exists, skipping inference.")
                 continue
-            output_video = args.setup.output_dir / f"{variant_id}.mp4"
             base_args = {
                 "name": variant_id,
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
