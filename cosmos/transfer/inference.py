@@ -1,18 +1,3 @@
-# SPDX-FileCopyrightText: Copyright (c) 2025 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 from pathlib import Path
 from typing import Annotated, Union
 
@@ -20,7 +5,6 @@ import pydantic
 import tyro
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
 
-from cosmos_transfer2._src.imaginaire.utils import log
 from cosmos_transfer2.config import (
     BlurConfig,
     DepthConfig,
@@ -47,6 +31,15 @@ ControlUnion = Annotated[
     tyro.conf.ConsolidateSubcommandArgs,
 ]
 
+# Map control types to their corresponding batch hint keys
+CONTROL_TYPE_TO_HINTS = {
+    EdgeConfig: ['edge'],
+    DepthConfig: ['depth'],
+    BlurConfig: ['vis'],
+    SegConfig: ['seg'],
+    AllConfig: ['edge', 'depth', 'vis', 'seg']
+}
+
 
 class Args(pydantic.BaseModel):
     model_config = pydantic.ConfigDict(extra="forbid")
@@ -63,7 +56,6 @@ class Args(pydantic.BaseModel):
 def main(
     args: Args,
 ):
-    print(args)
     print("\n" + "="*50)
     print("INFERENCE CONFIGURATION")
     print("="*50)
@@ -73,45 +65,51 @@ def main(
         print("-" * 30)
     print("="*50 + "\n")
 
-    # control_video_mapping = {
-    #     "blur": "blur",
-    #     "edge": "canny",
-    #     "depth": "depth_vids",
-    #     "seg": "sam2_vids",
-    # }
+    control_video_mapping = {
+        "blur": "blur",
+        "edge": "canny",
+        "depth": "depth_vids",
+        "seg": "sam2_vids",
+    }
 
     inference_samples = []
     for i in range(600):
         task_id = f"task_{i:04d}"
-        output_video = args.setup.output_dir / f"{task_id}.mp4"
-        if output_video.exists():
-            print(f"Output for {task_id} already exists, skipping inference.")
-            continue
-
         original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
         depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4")
         edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4")
         blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4")
         seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4")
 
-        base_args = {
-            "name": task_id,
-            "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}.json",
-            "video_path": original_video,
-            "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-            "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
-            "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-            "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
-        }
-        sample = InferenceArguments(**base_args)
-        inference_samples.append(sample)
-        continue
+        # main output variant
+        variant_id = task_id
+        output_video = args.setup.output_dir / f"{variant_id}.mp4"
+        if not output_video.exists():
+            base_args = {
+                "name": variant_id,
+                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
+                "video_path": original_video,
+                "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+                "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+                "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
+            }
+            sample = InferenceArguments(**base_args)
+            inference_samples.append(sample)
+            print(sample)
+        else:
+            print(f"Output for {variant_id} already exists, skipping inference.")
 
         # caption variations
         for j in range(1, 6):
+            variant_id = f"{task_id}_caption{j}"
+            if output_video.exists():
+                print(f"Output for {variant_id} already exists, skipping inference.")
+                continue
+            output_video = args.setup.output_dir / f"{variant_id}.mp4"
             base_args = {
-                "name": f"{task_id}_caption{j}",
-                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{task_id}_caption{j}.json",
+                "name": variant_id,
+                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
                 "video_path": original_video,
                 "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
                 "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
@@ -121,23 +119,12 @@ def main(
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
         
-
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
-    #CONTROL_KEYS = ["edge", "vis", "depth", "seg"]
-    batch_hint_keys = []
-    if isinstance(args.control, EdgeConfig):
-        batch_hint_keys.append('edge')
-    if isinstance(args.control, DepthConfig):
-        batch_hint_keys.append('depth')
-    if isinstance(args.control, BlurConfig):
-        batch_hint_keys.append('vis')
-    if isinstance(args.control, SegConfig):
-        batch_hint_keys.append('seg')
-    if isinstance(args.control, AllConfig):
-        batch_hint_keys.extend(['edge', 'depth', 'vis', 'seg'])
-    print(f"Batch hint keys: {batch_hint_keys}")
 
+    # Get batch hint keys based on active control type
+    batch_hint_keys = CONTROL_TYPE_TO_HINTS.get(type(args.control), [])
+    print(f"Using batch hint keys: {batch_hint_keys} for control type: {type(args.control).__name__}")
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
 
