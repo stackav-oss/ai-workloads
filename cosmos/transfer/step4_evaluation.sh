@@ -69,7 +69,7 @@ if [ $available_gpus -lt 1 ]; then
     exit 1
 fi
 
-ln -s /results/transfer/$control_type/inference /results/transfer/$control_type/videos
+ln -s /results/transfer/$control_type/inference /results/transfer/$control_type/videos || true
 python -m torch.distributed.run --standalone --nproc_per_node $available_gpus compute_metrics.py calculate-metrics \
 --gt_path /datasets/physical-ai-bench-conditional-generation \
 --videos_path  /results/transfer/$control_type/
