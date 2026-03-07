@@ -50,7 +50,7 @@ if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
     sed -i -e 's/"decord"/"decord2"/g'  "$PAI_DIR/pyproject.toml"
 fi
 
-sed -i -e 's/"torch.from_numpy(image).contiguous()"/"torch.from_numpy(image.copy()).contiguous()"/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
+sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy()).contiguous()/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
 uv sync --python 3.10
 uv pip install setuptools
 uv pip install -e third_party/Grounded-SAM-2
