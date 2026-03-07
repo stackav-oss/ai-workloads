@@ -71,4 +71,4 @@ fi
 ln -s /results/transfer/$control_type/inference /results/transfer/$control_type/videos
 python -m torch.distributed.run --standalone --nproc_per_node $available_gpus compute_metrics.py calculate-metrics \
 --gt_path /datasets/physical-ai-bench-conditional-generation \
---videos_path  /results/transfer/$control_type/inference
+--videos_path  /results/transfer/$control_type/
