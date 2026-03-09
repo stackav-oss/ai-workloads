@@ -96,7 +96,6 @@ def main(
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
-            print(sample)
         else:
             print(f"Output for {variant_id} already exists, skipping inference.")
 
