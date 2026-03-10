@@ -48,7 +48,8 @@ apt-get install -y --no-install-recommends \
 	tmux \
 	tree \
 	vim \
-	wget
+	wget \
+	rename
 
 # 2. Git LFS Initial Configuration
 echo "Configuring Git LFS..."
