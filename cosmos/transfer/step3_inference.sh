@@ -40,7 +40,7 @@ echo  "Running inference and benchmarking for control type: $control_type"
 mkdir -p /results/transfer/$control_type/inference
 
 # clean previous results
-# rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
+rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
 
 
 # Run inference using custom pyton script mounted from repo
@@ -49,10 +49,8 @@ cd /cosmos-transfer2.5
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130   > /dev/null 2>&1  || true
-    # solves RuntimeError: Multiple libcudart libraries found: libcudart.so.12 and libcudart.so.13 issue 
-    # mv /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.1x || true
 else
-    echo "Using PyTorch with CUDA 12.9 for NVIDIA H100"
+    echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
     uv sync --python 3.10 --extra=cu128   > /dev/null 2>&1  || true
 fi
 source .venv/bin/activate
