@@ -54,7 +54,8 @@ uv sync --python 3.10
 uv pip install setuptools
 if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
+    #uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
+    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
 else
     echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
     uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
@@ -69,7 +70,8 @@ bash get_checkpoint.sh
 uv pip install --reinstall xformers==0.0.35
 if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
+    #uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
+    uv pip install --reinstall torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cu130
 else
     echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
     uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
@@ -97,6 +99,8 @@ for video_prefix in {00..05}; do
     
     python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
     --gt_path /datasets/physical-ai-bench-conditional-generation \
-    --videos_path  /batches/ --output_path /batches/${control_type}_${video_prefix}.json
+    --videos_path  /batches/ --output_path "/results/transfer/${control_type}/metrics_${video_prefix}.json"
 done
 
+
+python generate_evaluation_results.py --metrics_dir "/results/transfer/${control_type}"
