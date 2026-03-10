@@ -72,7 +72,7 @@ def main(
         "seg": "sam2_vids",
     }
 
-    DEFAULT_NUM_OUTPUT_FRAMES = 33
+    #DEFAULT_NUM_OUTPUT_FRAMES = 33
     DEFAULT_NUM_STEPS = 35
     DEFAULT_SEED = 0
     DEFAULT_GUIDANCE = 4
@@ -100,8 +100,8 @@ def main(
                 "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None,
                 "num_steps": DEFAULT_NUM_STEPS,
                 "seed": DEFAULT_SEED,
-                "guidance": DEFAULT_GUIDANCE,
-                "num_output_frames": DEFAULT_NUM_OUTPUT_FRAMES
+                "guidance": DEFAULT_GUIDANCE
+                #"num_output_frames": DEFAULT_NUM_OUTPUT_FRAMES
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
