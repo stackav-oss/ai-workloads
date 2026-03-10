@@ -72,6 +72,11 @@ def main(
         "seg": "sam2_vids",
     }
 
+    DEFAULT_NUM_OUTPUT_FRAMES = 33
+    DEFAULT_NUM_STEPS = 35
+    DEFAULT_SEED = 0
+    DEFAULT_GUIDANCE = 4
+
     inference_samples = []
     for i in range(600):
         task_id = f"task_{i:04d}"
@@ -92,7 +97,11 @@ def main(
                 "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
                 "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
                 "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
+                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None,
+                "num_steps": DEFAULT_NUM_STEPS,
+                "seed": DEFAULT_SEED,
+                "guidance": DEFAULT_GUIDANCE,
+                "num_output_frames": DEFAULT_NUM_OUTPUT_FRAMES
             }
             sample = InferenceArguments(**base_args)
             inference_samples.append(sample)
@@ -100,23 +109,23 @@ def main(
             print(f"Output for {variant_id} already exists, skipping inference.")
 
         # caption variations
-        for j in range(1, 6):
-            variant_id = f"{task_id}_caption{j}"
-            output_video = args.setup.output_dir / f"{variant_id}.mp4"
-            if output_video.exists():
-                print(f"Output for {variant_id} already exists, skipping inference.")
-                continue
-            base_args = {
-                "name": variant_id,
-                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
-                "video_path": original_video,
-                "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-                "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
-                "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
-            }
-            sample = InferenceArguments(**base_args)
-            inference_samples.append(sample)
+        #for j in range(1, 6):
+        #    variant_id = f"{task_id}_caption{j}"
+        #    output_video = args.setup.output_dir / f"{variant_id}.mp4"
+        #    if output_video.exists():
+        #        print(f"Output for {variant_id} already exists, skipping inference.")
+        #        continue
+        #    base_args = {
+        #        "name": variant_id,
+        #        "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
+        #        "video_path": original_video,
+        #        "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
+        #        "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
+        #        "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
+        #        "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None
+        #    }
+        #    sample = InferenceArguments(**base_args)
+        #    inference_samples.append(sample)
         
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
