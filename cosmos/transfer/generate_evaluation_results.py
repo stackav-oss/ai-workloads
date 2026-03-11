@@ -77,6 +77,7 @@ def main():
     # Print to console
     print(f"\n{'='*40}")
     print(f"Evaluation Averages ({len(all_global_data)} files)")
+    print(metrics_dir)
     print(f"{'='*40}")
     for key, value in sorted(averages.items()):
         print(f"{key:<20}: {value:.4f}")
