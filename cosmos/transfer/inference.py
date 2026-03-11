@@ -81,10 +81,10 @@ def main(
     for i in range(0, 600, 50):
         task_id = f"task_{i:04d}"
         original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
-        depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4")
-        edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4")
-        blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4")
-        seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4")
+        edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
+        depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
+        blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
+        seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
 
         # main output variant
         variant_id = task_id
@@ -94,10 +94,10 @@ def main(
                 "name": variant_id,
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
                 "video_path": original_video,
-                "edge": edge_config if isinstance(args.control, (AllConfig, EdgeConfig)) else None,
-                "depth": depth_config if isinstance(args.control, (AllConfig, DepthConfig)) else None,
-                "vis": blur_config if isinstance(args.control, (AllConfig, BlurConfig)) else None,
-                "seg": seg_config if isinstance(args.control, (AllConfig, SegConfig)) else None,
+                "edge": edge_config,
+                "depth": depth_config,
+                "vis": blur_config,
+                "seg": seg_config,
                 "num_steps": DEFAULT_NUM_STEPS,
                 "seed": DEFAULT_SEED,
                 "guidance": DEFAULT_GUIDANCE

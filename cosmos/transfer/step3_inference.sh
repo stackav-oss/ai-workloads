@@ -46,6 +46,18 @@ rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
 # Run inference using custom pyton script mounted from repo
 cd /cosmos-transfer2.5
 
+mkdir -p /datasets/physical-ai-bench-conditional-generation/videos
+cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4
+cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0001.mp4
+cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0002.mp4
+cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0003.mp4
+
+mkdir -p /datasets/physical-ai-bench-conditional-generation/canny
+cp /cosmos-transfer2.5/assets/robot_example/seg/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0000.mp4
+cp /cosmos-transfer2.5/assets/robot_example/seg/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0001.mp4
+cp /cosmos-transfer2.5/assets/robot_example/seg/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0002.mp4
+cp /cosmos-transfer2.5/assets/robot_example/seg/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0003.mp4
+
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130
