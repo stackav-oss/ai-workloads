@@ -51,19 +51,25 @@ if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
 fi
 
 
-arch=$(uname -m)
-if [ "$arch" == "aarch64" ]; then
-    echo "Running on ARM architecture (aarch64)"
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
-else
-    echo "Running on x86_64 architecture"
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
-fi
 
-dpkg -i cuda-keyring_1.1-1_all.deb
-apt-get update
-apt -y install cuda-toolkit-12-8
-#apt -y install cuda-toolkit-13-0
+if [ -d "/usr/local/cuda-12" ]; then
+    echo "/usr/local/cuda-12 exists"
+else
+    echo "/usr/local/cuda-12 does not exist"
+    arch=$(uname -m)
+    if [ "$arch" == "aarch64" ]; then
+        echo "Running on ARM architecture (aarch64)"
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+    else
+        echo "Running on x86_64 architecture"
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+    fi
+
+    dpkg -i cuda-keyring_1.1-1_all.deb
+    apt-get update
+    apt -y install cuda-toolkit-12-8
+    #apt -y install cuda-toolkit-13-0
+fi
 
 ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
 ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true

@@ -68,19 +68,25 @@ cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /d
 
 
 
-arch=$(uname -m)
-if [ "$arch" == "aarch64" ]; then
-    echo "Running on ARM architecture (aarch64)"
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+if [ -d "/usr/local/cuda-13" ]; then
+    echo "/usr/local/cuda-13 exists"
 else
-    echo "Running on x86_64 architecture"
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+    echo "/usr/local/cuda-13 does not exist"
+    arch=$(uname -m)
+    if [ "$arch" == "aarch64" ]; then
+        echo "Running on ARM architecture (aarch64)"
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+    else
+        echo "Running on x86_64 architecture"
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+    fi
+
+    dpkg -i cuda-keyring_1.1-1_all.deb
+    apt-get update
+    #apt -y install cuda-toolkit-12-8
+    apt -y install cuda-toolkit-13-0
 fi
 
-dpkg -i cuda-keyring_1.1-1_all.deb
-apt-get update
-#apt -y install cuda-toolkit-12-8
-apt -y install cuda-toolkit-13-0
 
 ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
 ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
