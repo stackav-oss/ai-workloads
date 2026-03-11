@@ -58,6 +58,13 @@ cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physic
 cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0002.mp4
 cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0003.mp4
 
+cat > /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json <<'EOF'
+{"caption": "The video is a first-person perspective, possibly from a robotic or mechanical point of view, focusing on a small, round wooden table in a cozy living room setting. The table is neatly arranged with a few items: a white mug with a cute design, a folded yellow cloth, a box of tissues, and a small decorative vase with artificial flowers. The background features a dark television screen mounted on a wooden cabinet, and a blue armchair is visible to the right. The robotic arms, which are black with metallic joints, are positioned in front of the camera, suggesting an interaction with the objects on the table. Throughout the video, the arms remain mostly static, hovering over the table, indicating a potential setup for a demonstration or test of the robotic arms capabilities. The lighting is soft, creating a warm and inviting atmosphere. The camera remains fixed, providing a stable view of the scene, allowing the viewer to focus on the details of the objects and the robotic arms. The setting suggests a domestic environment, possibly for a vlog or a demonstration video, emphasizing the interaction between technology and everyday life."}
+EOF
+cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0001.json
+cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0002.json
+cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0003.json
+
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130
