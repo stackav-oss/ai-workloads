@@ -68,11 +68,8 @@ else
     dpkg -i cuda-keyring_1.1-1_all.deb
     apt-get update
     apt -y install cuda-toolkit-12-8
-    #apt -y install cuda-toolkit-13-0
 fi
 
-#ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
-#ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
 rm  /etc/alternatives/cuda
 ln -s /usr/local/cuda-12.8 /etc/alternatives/cuda
 
@@ -90,11 +87,6 @@ source .venv/bin/activate
 bash get_checkpoint.sh
 
 uv pip install --reinstall huggingface-hub
-
-#rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
-#ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90 /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
-#ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 -> /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90
-
 
 available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 echo "Available GPUs: $available_gpus"
