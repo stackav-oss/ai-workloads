@@ -52,31 +52,21 @@ fi
 
 uv sync --python 3.10
 uv pip install setuptools
-if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
-    echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    #uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu130
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
-else
-    echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
-fi
-
+uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
 uv pip install -e third_party/Grounded-SAM-2
 uv pip install --no-build-isolation -e third_party/Grounded-SAM-2/grounding_dino
 uv pip install --reinstall huggingface-hub==0.36.0
+uv pip install --reinstall xformers==0.0.35
+uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
+
 source .venv/bin/activate
 bash get_checkpoint.sh
 
-uv pip install --reinstall xformers==0.0.35
-if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
-    echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
-    #uv pip install --reinstall torch==2.10.0 torchvision==0.25.0 --index-url https://download.pytorch.org/whl/cu130
-else
-    echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
-    uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
-fi
 uv pip install --reinstall huggingface-hub
+
+rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
+ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90 /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
+
 
 
 available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
@@ -104,3 +94,4 @@ done
 
 
 python generate_evaluation_results.py --metrics_dir "/results/transfer/${control_type}"
+deactivate
