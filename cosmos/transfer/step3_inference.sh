@@ -69,7 +69,8 @@ cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /d
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130
-    #rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 || true
+    rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 || true
+    #/usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 -> libcudart.so.12.8.90
     #rm  /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so || true
     #ln -s /cosmos-transfer2.5/.venv/lib/python3.10/site-packages/nvidia/cu13/lib/libcudart.so.13 /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
     #rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 
