@@ -60,6 +60,6 @@ else
 fi
 source .venv/bin/activate
 
-python -m torch.distributed.run --standalone --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference" control:$control_type
+torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference" control:$control_type
 
 deactivate
