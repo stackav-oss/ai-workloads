@@ -79,7 +79,7 @@ fi
 
 dpkg -i cuda-keyring_1.1-1_all.deb
 apt-get update
-apt -y install cuda-toolkit-12-8
+#apt -y install cuda-toolkit-12-8
 apt -y install cuda-toolkit-13-0
 
 ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
