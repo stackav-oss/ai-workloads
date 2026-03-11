@@ -88,9 +88,12 @@ else
 fi
 
 
-ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
-ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
-rm /usr/local/cuda-12
+#ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
+#ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
+#rm /usr/local/cuda-12
+
+rm  /etc/alternatives/cuda
+ln -s /usr/local/cuda-13.0 /etc/alternatives/cuda
 
 
 
