@@ -66,6 +66,34 @@ cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /d
 cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0002.json
 cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0003.json
 
+
+
+arch=$(uname -m)
+if [ "$arch" == "aarch64" ]; then
+    echo "Running on ARM architecture (aarch64)"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+else
+    echo "Running on x86_64 architecture"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+fi
+
+dpkg -i cuda-keyring_1.1-1_all.deb
+apt-get update
+apt -y install cuda-toolkit-12-8
+apt -y install cuda-toolkit-13-2
+
+apt-get update
+apt -y install cuda-toolkit-12-8
+apt -y install cuda-toolkit-13-2
+
+
+ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
+ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
+rm /usr/local/cuda-12
+
+
+
+
 if [ "$gpu_model" == "NVIDIA GB200" ]; then
     echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
     uv sync --python 3.10 --extra=cu130

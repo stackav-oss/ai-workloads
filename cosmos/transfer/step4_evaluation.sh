@@ -50,6 +50,26 @@ if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
     sed -i -e 's/"decord"/"decord2"/g'  "$PAI_DIR/pyproject.toml"
 fi
 
+
+arch=$(uname -m)
+if [ "$arch" == "aarch64" ]; then
+    echo "Running on ARM architecture (aarch64)"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
+else
+    echo "Running on x86_64 architecture"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+fi
+
+dpkg -i cuda-keyring_1.1-1_all.deb
+apt-get update
+apt -y install cuda-toolkit-12-8
+apt -y install cuda-toolkit-13-2
+
+
+ln -s /etc/alternatives/cuda-12 /usr/local/cuda-12 || true
+ln -s /etc/alternatives/cuda-13 /usr/local/cuda-13 || true
+rm /usr/local/cuda-13
+
 uv sync --python 3.10
 uv pip install setuptools
 uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
