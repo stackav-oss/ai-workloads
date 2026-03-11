@@ -85,7 +85,7 @@ uv pip install --reinstall huggingface-hub
 
 #rm /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
 #ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90 /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so
-ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 -> /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90
+#ln -s /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12 -> /usr/local/cuda-12.8/targets/sbsa-linux/lib/libcudart.so.12.8.90
 
 
 available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
