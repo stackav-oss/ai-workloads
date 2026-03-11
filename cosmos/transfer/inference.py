@@ -72,13 +72,13 @@ def main(
         "seg": "sam2_vids",
     }
 
-    #DEFAULT_NUM_OUTPUT_FRAMES = 33
     DEFAULT_NUM_STEPS = 35
     DEFAULT_SEED = 0
     DEFAULT_GUIDANCE = 4
+    NUMBER_OF_TASKS = 600
 
     inference_samples = []
-    for i in range(0, 4):
+    for i in range(NUMBER_OF_TASKS):
         task_id = f"task_{i:04d}"
         original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
         edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
