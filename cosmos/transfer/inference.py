@@ -78,7 +78,7 @@ def main(
     DEFAULT_GUIDANCE = 4
 
     inference_samples = []
-    for i in range(0, 4):
+    for i in range(0, 600):
         task_id = f"task_{i:04d}"
         original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
         edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
