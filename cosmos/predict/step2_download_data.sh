@@ -63,7 +63,7 @@ setup_python_env
 
 # Download datasets
 download_dataset "$PHYSICAL_AI_BENCH_DATASET" "$DATASETS_DIR/physical-ai-bench-generation"
-download_dataset "$PHYSICAL_AI_BENCH_CONDITIONAL" "$DATASETS_DIR/physical-ai-bench-conditional-generation"
+#download_dataset "$PHYSICAL_AI_BENCH_CONDITIONAL" "$DATASETS_DIR/physical-ai-bench-conditional-generation"
 
 cleanup_env
 
