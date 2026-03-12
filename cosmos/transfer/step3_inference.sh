@@ -36,6 +36,11 @@ echo "The script is located in: ${ROOT_DIR}"
 
 echo  "Running inference and benchmarking for control type: $control_type"
 
+# temp 
+mkdir -p /datasets/results
+ln -s /datasets/results /results
+
+
 # Create result directories
 mkdir -p /results/transfer/$control_type/inference
 
