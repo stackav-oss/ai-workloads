@@ -1,107 +1,89 @@
-source $HOME/.local/bin/env
+#!/bin/bash
+# COSMOS Transfer Inference Script
+# Handles GPU-specific setup and distributed inference for control types.
 
-# Check if HF_TOKEN is set and not empty
-if [[ -z "$HF_TOKEN" ]]; then
-  echo "HF_TOKEN is either unset or empty"
-  exit 1
-fi
+set -euo pipefail
 
-if [ $# -eq 0 ]; then
-    echo "Error: Please provide an control type [edge|vis|depth|seg]"
+# --- Configuration & Validation ---
+
+source "$HOME/.local/bin/env"
+
+# Ensure environment is ready
+[[ -z "${HF_TOKEN:-}" ]] && { echo "Error: HF_TOKEN is not set."; exit 1; }
+
+# Validate control type argument
+CONTROL_TYPE="${1:-}"
+VALID_TYPES=("edge" "vis" "depth" "seg" "all")
+
+if [[ ! " ${VALID_TYPES[@]} " =~ " ${CONTROL_TYPE} " ]]; then
+    echo "Usage: $0 [${VALID_TYPES[*]// /|}]"
     exit 1
 fi
 
-control_type=$1
-if [ "$control_type" != "edge" ] && [ "$control_type" != "vis" ] && [ "$control_type" != "depth" ] && [ "$control_type" != "seg" ] && [ "$control_type" != "all" ]; then
-    echo "Error: Invalid control type. Must be 'edge', 'vis', 'depth', 'seg', or 'all'"
-    exit 1
+# Paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RESULT_BASE="/results/transfer/$CONTROL_TYPE"
+INFERENCE_DIR="$RESULT_BASE/inference"
+
+# --- Hardware Detection ---
+
+GPU_MODEL=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits -i 0)
+NUM_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
+
+echo "Detected $NUM_GPUS x '$GPU_MODEL'"
+[[ $NUM_GPUS -lt 1 ]] && { echo "Error: NVIDIA GPU required."; exit 1; }
+
+# Determine CUDA versions based on GPU model
+if [[ "$GPU_MODEL" == *"GB200"* ]]; then
+    CUDA_VER="13"
+    CUDA_TOOLKIT="cuda-toolkit-13-0"
+    UV_EXTRA="cu130"
+else
+    CUDA_VER="12"
+    CUDA_TOOLKIT="cuda-toolkit-12-8"
+    UV_EXTRA="cu128"
 fi
-echo "Control type: $control_type"
 
-gpu_model=$(nvidia-smi --query-gpu=gpu_name --format=csv,noheader,nounits -i 0)
-echo "Detected GPU: '$gpu_model'"
+CUDA_DIR="/usr/local/cuda-$CUDA_VER"
 
-available_gpus=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
-echo "Available GPUs: $available_gpus"
-if [ $available_gpus -lt 1 ]; then
-    echo "Error: At least 1 NVIDIA GPUs are required"
-    exit 1
-fi
+# --- Environment Setup ---
 
+log() { echo -e "\n--- $1 ---"; }
 
-# Get the absolute path of the directory containing this script
-ROOT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo "The script is located in: ${ROOT_DIR}"
-
-
-echo  "Running inference and benchmarking for control type: $control_type"
-
-# temp 
+log "Setting up system directories"
 mkdir -p /datasets/results
-ln -s /datasets/results /results
+ln -sfn /datasets/results /results
+mkdir -p "$INFERENCE_DIR"
+#rm -rf "${INFERENCE_DIR:?}"/*
 
+log "Ensuring CUDA $CUDA_VER and UV environment"
+if [[ ! -d "$CUDA_DIR" ]]; then
+    ARCH=$(uname -m)
+    REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
+    
+    wget -q "$REPO_URL" -O cuda-keyring.deb
+    dpkg -i cuda-keyring.deb
+    apt-get update -qq
+    apt-get install -y -qq "$CUDA_TOOLKIT"
+    rm cuda-keyring.deb
+fi
 
-# Create result directories
-mkdir -p /results/transfer/$control_type/inference
+# Update system-wide CUDA symlink
+ln -sfn "$CUDA_DIR" /etc/alternatives/cuda
 
-# clean previous results
-rm /results/transfer/$control_type/inference/*  > /dev/null 2>&1  || true
+# --- Inference Execution ---
 
-
-# Run inference using custom pyton script mounted from repo
+log "Syncing UV environment ($UV_EXTRA)"
 cd /cosmos-transfer2.5
-
-#mkdir -p /datasets/physical-ai-bench-conditional-generation/videos
-#cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0000.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0001.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0002.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/robot_input.mp4 /datasets/physical-ai-bench-conditional-generation/videos/task_0003.mp4
-#mkdir -p /datasets/physical-ai-bench-conditional-generation/canny
-#cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0000.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0001.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0002.mp4
-#cp /cosmos-transfer2.5/assets/robot_example/edge/robot_edge.mp4 /datasets/physical-ai-bench-conditional-generation/canny/task_0003.mp4
-#mkdir -p /datasets/physical-ai-bench-conditional-generation/captions
-#cat > /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json <<'EOF'
-#{"caption": "The video is a first-person perspective, possibly from a robotic or mechanical point of view, focusing on a small, round wooden table in a cozy living room setting. The table is neatly arranged with a few items: a white mug with a cute design, a folded yellow cloth, a box of tissues, and a small decorative vase with artificial flowers. The background features a dark television screen mounted on a wooden cabinet, and a blue armchair is visible to the right. The robotic arms, which are black with metallic joints, are positioned in front of the camera, suggesting an interaction with the objects on the table. Throughout the video, the arms remain mostly static, hovering over the table, indicating a potential setup for a demonstration or test of the robotic arms capabilities. The lighting is soft, creating a warm and inviting atmosphere. The camera remains fixed, providing a stable view of the scene, allowing the viewer to focus on the details of the objects and the robotic arms. The setting suggests a domestic environment, possibly for a vlog or a demonstration video, emphasizing the interaction between technology and everyday life."}
-#EOF
-#cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0001.json
-#cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0002.json
-#cp /datasets/physical-ai-bench-conditional-generation/captions/task_0000.json /datasets/physical-ai-bench-conditional-generation/captions/task_0003.json
-
-
-
-if [ -d "/usr/local/cuda-13" ]; then
-    echo "/usr/local/cuda-13 exists"
-else
-    echo "/usr/local/cuda-13 does not exist"
-    arch=$(uname -m)
-    if [ "$arch" == "aarch64" ]; then
-        echo "Running on ARM architecture (aarch64)"
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
-    else
-        echo "Running on x86_64 architecture"
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
-    fi
-
-    dpkg -i cuda-keyring_1.1-1_all.deb
-    apt-get update
-    apt -y install cuda-toolkit-13-0
-fi
-
-rm  /etc/alternatives/cuda
-ln -s /usr/local/cuda-13.0 /etc/alternatives/cuda
-
-
-if [ "$gpu_model" == "NVIDIA GB200" ]; then
-    echo "Using PyTorch with CUDA 13.0 for NVIDIA GB200"
-    uv sync --python 3.10 --extra=cu130
-else
-    echo "Using PyTorch with CUDA 12.8 for NVIDIA H100"
-    uv sync --python 3.10 --extra=cu128
-fi
+uv sync --quiet --python 3.10 --extra="$UV_EXTRA"
 source .venv/bin/activate
 
-torchrun --nproc_per_node=$available_gpus --master_port=12341 "/$ROOT_DIR/inference.py" --disable-guardrails -o "/results/transfer/$control_type/inference" control:$control_type
+log "Launching distributed inference: $CONTROL_TYPE"
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 \
+    "$SCRIPT_DIR/inference.py" \
+    --disable-guardrails \
+    -o "$INFERENCE_DIR" \
+    "control:$CONTROL_TYPE"
 
 deactivate
+echo -e "\nInference completed. Results in: $INFERENCE_DIR"
