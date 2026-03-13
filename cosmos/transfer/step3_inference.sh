@@ -71,7 +71,7 @@ rm cuda-keyring.deb
 #fi
 
 # Update system-wide CUDA symlink
-ln -sfn "$CUDA_DIR" /etc/alternatives/cuda
+#ln -sfn "$CUDA_DIR" /etc/alternatives/cuda
 
 # --- Inference Execution ---
 
