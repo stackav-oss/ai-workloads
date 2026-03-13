@@ -48,6 +48,8 @@ get_gpu_info
 if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
     echo "Configuring for NVIDIA GB200"
     sed -i -e 's/"decord"/"decord2"/g'  "$PAI_DIR/pyproject.toml"
+else
+    echo "Configuring for non-GB200 GPU"
 fi
 
 
