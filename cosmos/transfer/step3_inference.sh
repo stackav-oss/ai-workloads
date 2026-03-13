@@ -62,8 +62,8 @@ log "Ensuring CUDA $CUDA_VER and UV environment"
 #rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 
 apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
-apt-get autoremove --purge
-apt-get autoclean
+apt-get autoremove -y  --purge
+apt-get autoclean -y 
 
 ARCH=$(uname -m)
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
