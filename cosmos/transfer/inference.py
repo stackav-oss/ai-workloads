@@ -80,16 +80,16 @@ def main(
     inference_samples = []
     for i in range(NUMBER_OF_TASKS):
         task_id = f"task_{i:04d}"
-        original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
-        edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
-        depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
-        blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
-        seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
-
         # main output variant
         variant_id = task_id
         output_video = args.setup.output_dir / f"{variant_id}.mp4"
         if not output_video.exists():
+            original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
+            edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
+            depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
+            blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
+            seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
+
             base_args = {
                 "name": variant_id,
                 "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
