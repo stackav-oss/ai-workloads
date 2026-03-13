@@ -58,6 +58,8 @@ mkdir -p "$INFERENCE_DIR"
 
 log "Ensuring CUDA $CUDA_VER and UV environment"
 #if [[ ! -d "$CUDA_DIR" ]]; then
+rm -rf /usr/local/cuda-12; rm -rf /usr/local/cuda-12.8/;
+rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 ARCH=$(uname -m)
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
 
