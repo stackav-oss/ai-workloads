@@ -61,7 +61,7 @@ log "Ensuring CUDA $CUDA_VER and UV environment"
 #rm -rf /usr/local/cuda-12; rm -rf /usr/local/cuda-12.8/;
 #rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 
-apt-get purge --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
+apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
 apt-get autoremove --purge
 apt-get autoclean
 
