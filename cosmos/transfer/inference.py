@@ -135,6 +135,7 @@ def main(
     print(f"Using batch hint keys: {batch_hint_keys} for control type: {type(args.control).__name__}")
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
     inference.generate(inference_samples, output_dir=args.setup.output_dir)
+    return len(inference_samples)
 
 
 if __name__ == "__main__":
@@ -149,7 +150,13 @@ if __name__ == "__main__":
         )
     except Exception as e:
         handle_tyro_exception(e)
-    # pyrefly: ignore  # unbound-name
-    main(args)
+
+    number_of_items = main(args)
+    print("Processed number_of_items:", number_of_items)
+    while number_of_items:
+        number_of_items = main(args)
+        print("Processed number_of_items:", number_of_items)
+        import time
+        time.sleep(60)
 
     cleanup_environment()
