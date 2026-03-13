@@ -57,16 +57,16 @@ mkdir -p "$INFERENCE_DIR"
 #rm -rf "${INFERENCE_DIR:?}"/*
 
 log "Ensuring CUDA $CUDA_VER and UV environment"
-if [[ ! -d "$CUDA_DIR" ]]; then
-    ARCH=$(uname -m)
-    REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
-    
-    wget -q "$REPO_URL" -O cuda-keyring.deb
-    dpkg -i cuda-keyring.deb
-    apt-get update -qq
-    apt-get install -y -qq "$CUDA_TOOLKIT"
-    rm cuda-keyring.deb
-fi
+#if [[ ! -d "$CUDA_DIR" ]]; then
+ARCH=$(uname -m)
+REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
+
+wget -q "$REPO_URL" -O cuda-keyring.deb
+dpkg -i cuda-keyring.deb
+apt-get update -qq
+apt-get install -y -qq "$CUDA_TOOLKIT"
+rm cuda-keyring.deb
+#fi
 
 # Update system-wide CUDA symlink
 ln -sfn "$CUDA_DIR" /etc/alternatives/cuda
