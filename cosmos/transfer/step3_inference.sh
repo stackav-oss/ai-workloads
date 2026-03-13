@@ -65,8 +65,8 @@ REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${
 
 wget -q "$REPO_URL" -O cuda-keyring.deb
 dpkg -i cuda-keyring.deb
-apt-get update -qq
-apt-get install -y -qq "$CUDA_TOOLKIT"
+apt-get update
+apt-get install -y "$CUDA_TOOLKIT"
 rm cuda-keyring.deb
 #fi
 
