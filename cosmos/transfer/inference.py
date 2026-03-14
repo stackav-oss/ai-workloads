@@ -67,8 +67,9 @@ def prepare_samples(args, offset, size):
     for i in range(offset, offset + size):
         task_id = f"task_{i:04d}"
         # main output variant
-        variant_id = task_id if args.caption_variant == 0 else f"{task_id}_caption{args.caption_variant}"
-        output_video = args.setup.output_dir / f"{variant_id}.mp4"
+        # variant_id = task_id if args.caption_variant == 0 else f"{task_id}_caption{args.caption_variant}"
+        variant_id = task_id
+        output_video = args.setup.output_dir / f"caption{args.caption_variant}" / f"{variant_id}.mp4"
         if not output_video.exists():
             original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
             edge_config = EdgeConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/canny/{task_id}.mp4") if isinstance(args.control, (AllConfig, EdgeConfig)) else None
