@@ -84,17 +84,16 @@ log "Ensuring CUDA $CUDA_VER and UV environment"
 
 log "Syncing UV environment ($UV_EXTRA)"
 cd /cosmos-transfer2.5
-uv sync --quiet --python 3.10 --extra="$UV_EXTRA"
+uv sync --python 3.10 --extra="$UV_EXTRA"
 source .venv/bin/activate
 
 log "Launching distributed inference: $CONTROL_TYPE"
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 \
-    "$SCRIPT_DIR/inference.py" \
-    --disable-guardrails \
-    -o "$INFERENCE_DIR" \
-    --caption-variant 0 \
-    "control:$CONTROL_TYPE"
-    
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 0 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 1 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 2 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 3 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 4 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 5 "control:$CONTROL_TYPE" || true
 
 deactivate
 echo -e "\nInference completed. Results in: $INFERENCE_DIR"
