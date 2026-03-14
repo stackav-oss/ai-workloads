@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Annotated, Union
-
+import json
 import pydantic
 import tyro
 from cosmos_oss.init import cleanup_environment, init_environment, init_output_dir
@@ -61,6 +61,10 @@ class Args(pydantic.BaseModel):
     )
     """Caption variant to use for inference."""
 
+def read_prompt_file(prompt_path):
+    with open(prompt_path, 'r') as f:
+        data = json.load(f)
+    return data["prompt"]
 
 def prepare_samples(args, offset, size):
     inference_samples = []
@@ -76,10 +80,10 @@ def prepare_samples(args, offset, size):
             depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
             blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
             seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
-
+            prompt = read_prompt_file(f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json"),
             base_args = {
                 "name": variant_id,
-                "prompt_path": f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json",
+                "prompt": prompt,
                 "video_path": original_video,
                 "edge": edge_config,
                 "depth": depth_config,
@@ -127,14 +131,15 @@ if __name__ == "__main__":
     except Exception as e:
         handle_tyro_exception(e)
 
-    print("\n" + "="*50)
-    print("INFERENCE CONFIGURATION")
-    print("="*50)
-    for field, value in args.__dict__.items():
-        print(f"[{field.upper()}]: {type(value)}")
-        print(value)
-        print("-" * 30)
-    print("="*50 + "\n")
+    if is_rank0():
+        print("\n" + "="*50)
+        print("INFERENCE CONFIGURATION")
+        print("="*50)
+        for field, value in args.__dict__.items():
+            print(f"[{field.upper()}]: {type(value)}")
+            print(value)
+            print("-" * 30)
+        print("="*50 + "\n")
     
     #from cosmos_transfer2.inference import Control2WorldInference
     #init_output_dir(args.setup.output_dir, profile=args.setup.profile)
