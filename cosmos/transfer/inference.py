@@ -107,7 +107,10 @@ def main(args: Args):
         if not inference_samples:
             print(f"All outputs for batch starting at {batch_offset} already exist, skipping this batch.", flush=True)
             continue
-        inference.generate(inference_samples, output_dir=args.setup.output_dir)
+        try:
+            inference.generate(inference_samples, output_dir=args.setup.output_dir)
+        except Exception as e:
+            print(f"Error during inference for batch starting at {batch_offset}: {e}", flush=True)
 
 
 if __name__ == "__main__":
