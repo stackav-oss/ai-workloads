@@ -102,7 +102,7 @@ def main(args: Args):
     print(f"Using batch hint keys: {batch_hint_keys} for control type: {type(args.control).__name__}")
     inference = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
 
-    for batch_offset in range(local_rank, NUMBER_OF_TASKS, BATCH_SIZE):
+    for batch_offset in range(0, NUMBER_OF_TASKS, BATCH_SIZE):
         inference_samples = prepare_samples(args, batch_offset, BATCH_SIZE)
         if not inference_samples:
             print(f"All outputs for batch starting at {batch_offset} already exist, skipping this batch.", flush=True)
