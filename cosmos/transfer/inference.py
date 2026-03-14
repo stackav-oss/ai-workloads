@@ -64,7 +64,7 @@ class Args(pydantic.BaseModel):
 def read_prompt_file(prompt_path):
     with open(prompt_path, 'r') as f:
         data = json.load(f)
-    return data["prompt"]
+    return data["caption"]
 
 def prepare_samples(args, offset, size):
     inference_samples = []
