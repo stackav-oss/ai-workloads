@@ -70,9 +70,10 @@ def prepare_samples(args, offset, size):
     inference_samples = []
     for i in range(offset, offset + size):
         task_id = f"task_{i:04d}"
-        # main output variant
-        # variant_id = task_id if args.caption_variant == 0 else f"{task_id}_caption{args.caption_variant}"
         variant_id = task_id
+        # main output variant
+        caption_file_name = task_id if args.caption_variant == 0 else f"{task_id}_caption{args.caption_variant}"
+        prompt = read_prompt_file(f"/datasets/physical-ai-bench-conditional-generation/captions/{caption_file_name}.json")
         output_video = args.setup.output_dir / f"{variant_id}.mp4"
         if not output_video.exists():
             original_video = f"/datasets/physical-ai-bench-conditional-generation/videos/{task_id}.mp4"
@@ -80,7 +81,7 @@ def prepare_samples(args, offset, size):
             depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
             blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
             seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
-            prompt = read_prompt_file(f"/datasets/physical-ai-bench-conditional-generation/captions/{variant_id}.json"),
+            prompt = prompt,
             base_args = {
                 "name": variant_id,
                 "prompt": prompt,
