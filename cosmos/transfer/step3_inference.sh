@@ -88,12 +88,12 @@ uv sync --python 3.10 --extra="$UV_EXTRA"
 source .venv/bin/activate
 
 log "Launching distributed inference: $CONTROL_TYPE"
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 0 "control:$CONTROL_TYPE" || true
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 1 "control:$CONTROL_TYPE" || true
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 2 "control:$CONTROL_TYPE" || true
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 3 "control:$CONTROL_TYPE" || true
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 4 "control:$CONTROL_TYPE" || true
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR" --caption-variant 5 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_0" --caption-variant 0 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_1" --caption-variant 1 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_2" --caption-variant 2 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_3" --caption-variant 3 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_4" --caption-variant 4 "control:$CONTROL_TYPE" || true
+torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o "$INFERENCE_DIR/caption_5" --caption-variant 5 "control:$CONTROL_TYPE" || true
 
 deactivate
 echo -e "\nInference completed. Results in: $INFERENCE_DIR"
