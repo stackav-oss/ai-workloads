@@ -44,7 +44,7 @@ else
     UV_EXTRA="cu128"
 fi
 
-CUDA_DIR="/usr/local/cuda-$CUDA_VER"
+#CUDA_DIR="/usr/local/cuda-$CUDA_VER"
 
 # --- Environment Setup ---
 
@@ -61,18 +61,20 @@ log "Ensuring CUDA $CUDA_VER and UV environment"
 #rm -rf /usr/local/cuda-12; rm -rf /usr/local/cuda-12.8/;
 #rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 
-apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
-apt-get autoremove -y  --purge
-apt-get autoclean -y 
+# uninstall existing CUDA installations to avoid conflicts
+#apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
+#apt-get autoremove -y  --purge
+#apt-get autoclean -y 
 
-ARCH=$(uname -m)
-REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
+# install cuda toolkit
+#ARCH=$(uname -m)
+#REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
+#wget -q "$REPO_URL" -O cuda-keyring.deb
+#dpkg -i cuda-keyring.deb
+#apt update
+#apt install -y "$CUDA_TOOLKIT"
+#rm cuda-keyring.deb
 
-wget -q "$REPO_URL" -O cuda-keyring.deb
-dpkg -i cuda-keyring.deb
-apt update
-apt install --reinstall -y "$CUDA_TOOLKIT"
-rm cuda-keyring.deb
 #fi
 
 # Update system-wide CUDA symlink
@@ -90,7 +92,9 @@ torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 \
     "$SCRIPT_DIR/inference.py" \
     --disable-guardrails \
     -o "$INFERENCE_DIR" \
+    --caption-variant 0 \
     "control:$CONTROL_TYPE"
+    
 
 deactivate
 echo -e "\nInference completed. Results in: $INFERENCE_DIR"
