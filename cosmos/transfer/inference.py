@@ -98,7 +98,7 @@ def prepare_samples(args, offset, size):
 
 def main(args: Args):
     NUMBER_OF_TASKS = 600
-    BATCH_SIZE = 40
+    BATCH_SIZE = 100
 
     from cosmos_transfer2.inference import Control2WorldInference
     init_output_dir(args.setup.output_dir, profile=args.setup.profile)
