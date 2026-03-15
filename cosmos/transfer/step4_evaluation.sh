@@ -117,6 +117,6 @@ for video_prefix in {00..05}; do
     fi
 done
 
-
+mkdir -p "/results/transfer/${control_type}/evaluation/caption_0"
 python "/$ROOT_DIR/generate_evaluation_results.py" --metrics_dir "/results/transfer/${control_type}/evaluation/caption_0"
 deactivate
