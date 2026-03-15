@@ -101,18 +101,24 @@ sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy())
 
 
 for video_prefix in {00..05}; do
-    mkdir -p /batches/videos/
-    rm -rf /batches/videos/*
-    cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}??.mp4 /batches/videos/ || true
+    mkdir -p "/results/transfer/${control_type}/evaluation/caption_0"
+    metrics_file="/results/transfer/${control_type}/evaluation/caption_0/metrics_${video_prefix}.json"
+    if [ ! -f "$metrics_file" ]; then
+        mkdir -p /batches/videos/
+        rm -rf /batches/videos/*
+        cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}??.mp4 /batches/videos/ || true
 
-    # Only run if mp4 files exist
-    if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
-        python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
-        --gt_path /datasets/physical-ai-bench-conditional-generation \
-        --videos_path  /batches/ --output_path "/results/transfer/${control_type}/evaluation/caption_0/metrics_${video_prefix}.json"
+        # Only run if mp4 files exist
+        if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
+            python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
+            --gt_path /datasets/physical-ai-bench-conditional-generation \
+            --videos_path  /batches/ --output_path "$metrics_file"
+        fi
+    else
+        echo "Metrics file $metrics_file already exists, skipping."
     fi
 done
 
-mkdir -p "/results/transfer/${control_type}/evaluation/caption_0"
+
 python "/$ROOT_DIR/generate_evaluation_results.py" --metrics_dir "/results/transfer/${control_type}/evaluation/caption_0"
 deactivate
