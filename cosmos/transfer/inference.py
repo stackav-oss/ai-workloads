@@ -81,7 +81,6 @@ def prepare_samples(args, offset, size):
             depth_config = DepthConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/depth_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, DepthConfig)) else None
             blur_config = BlurConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/blur/{task_id}.mp4") if isinstance(args.control, (AllConfig, BlurConfig)) else None
             seg_config = SegConfig(control_path=f"/datasets/physical-ai-bench-conditional-generation/sam2_vids/{task_id}.mp4") if isinstance(args.control, (AllConfig, SegConfig)) else None
-            prompt = prompt,
             base_args = {
                 "name": variant_id,
                 "prompt": prompt,
