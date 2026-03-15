@@ -103,12 +103,8 @@ sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy())
 for video_prefix in {00..05}; do
     mkdir -p /batches/videos/
     rm -rf /batches/videos/*
-    cp /results/transfer/${control_type}/inference/task_${video_prefix}??.mp4 /batches/videos/ || true
-    
-    # for caption variations, if they exist
-    # cp /results/transfer/${control_type}/inference/task_${video_prefix}??_caption?.mp4 /batches/videos/ || true
-    # rename -v 's/(task_[0-9A-Za-z]+)_caption([0-9]+)\.mp4/$1__$2_caption$2.mp4/' /batches/videos/*.mp4 || true
-    
+    cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}??.mp4 /batches/videos/ || true
+
     # Only run if mp4 files exist
     if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
         python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
