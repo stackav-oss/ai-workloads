@@ -113,6 +113,7 @@ for video_prefix in {00..05}; do
             python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
             --gt_path /datasets/physical-ai-bench-conditional-generation \
             --videos_path  /batches/ --output_path "$metrics_file"
+            sleep 10
         fi
     else
         echo "Metrics file $metrics_file already exists, skipping."
