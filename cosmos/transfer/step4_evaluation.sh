@@ -100,7 +100,7 @@ fi
 sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy()).contiguous()/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
 
 
-for video_prefix in {00..05}; do
+for video_prefix in {000..059}; do
     mkdir -p "/results/transfer/${control_type}/evaluation/caption_0"
     metrics_file="/results/transfer/${control_type}/evaluation/caption_0/metrics_${video_prefix}.json"
     if [ ! -f "$metrics_file" ]; then
