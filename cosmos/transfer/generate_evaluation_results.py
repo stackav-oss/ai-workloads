@@ -37,12 +37,14 @@ def main():
         logging.warning(f"No JSON files found in {metrics_dir}")
         return
 
+    total_video_items = 0
     for filepath in json_files:
         try:
             with open(filepath, "r") as f:
                 data = json.load(f)
                 if "global" in data:
                     all_global_data.append(data["global"])
+                    total_video_items += len(data["per_video"])
                 else:
                     logging.debug(f"Missing 'global' field in {filepath.name}")
         except (json.JSONDecodeError, IOError) as e:
@@ -76,7 +78,7 @@ def main():
 
     # Print to console
     print(f"\n{'='*40}")
-    print(f"Evaluation Averages ({len(all_global_data)} files)")
+    print(f"Evaluation Averages ({len(all_global_data)} files, {total_video_items} videos)")
     print(metrics_dir)
     print(f"{'='*40}")
     for key, value in sorted(averages.items()):
