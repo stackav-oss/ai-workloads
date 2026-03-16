@@ -106,7 +106,7 @@ for video_prefix in {000..059}; do
     if [ ! -f "$metrics_file" ]; then
         mkdir -p /batches/videos/
         rm -rf /batches/videos/*
-        cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}??.mp4 /batches/videos/ || true
+        cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}?.mp4 /batches/videos/ || true
 
         # Only run if mp4 files exist
         if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
