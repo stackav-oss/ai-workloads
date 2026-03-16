@@ -67,13 +67,13 @@ apt-get autoremove -y  --purge
 apt-get autoclean -y 
 
 # install cuda toolkit
-#ARCH=$(uname -m)
-#REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
-#wget -q "$REPO_URL" -O cuda-keyring.deb
-#dpkg -i cuda-keyring.deb
-#apt update
-#apt install -y "$CUDA_TOOLKIT"
-#rm cuda-keyring.deb
+ARCH=$(uname -m)
+REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${ARCH/aarch64/sbsa}/cuda-keyring_1.1-1_all.deb"
+wget -q "$REPO_URL" -O cuda-keyring.deb
+dpkg -i cuda-keyring.deb
+apt update
+apt install -y "$CUDA_TOOLKIT"
+rm cuda-keyring.deb
 
 #fi
 
