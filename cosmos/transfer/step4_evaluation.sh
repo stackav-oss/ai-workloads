@@ -103,12 +103,12 @@ sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy())
 
 caption_id=0
 for video_prefix in {000..059}; do
-    mkdir -p "/results/transfer/${control_type}/evaluation/caption_{$caption_id}"
-    metrics_file="/results/transfer/${control_type}/evaluation/caption_{$caption_id}/metrics_${video_prefix}.json"
+    mkdir -p "/results/transfer/${control_type}/evaluation/caption_${caption_id}"
+    metrics_file="/results/transfer/${control_type}/evaluation/caption_${caption_id}/metrics_${video_prefix}.json"
     if [ ! -f "$metrics_file" ]; then
         mkdir -p /batches/videos/
         rm -rf /batches/videos/*
-        cp /results/transfer/${control_type}/inference/caption_{$caption_id}/task_${video_prefix}?.mp4 /batches/videos/ || true
+        cp /results/transfer/${control_type}/inference/caption_${caption_id}/task_${video_prefix}?.mp4 /batches/videos/ || true
 
         # Only run if mp4 files exist
         if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
