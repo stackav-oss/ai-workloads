@@ -52,7 +52,9 @@ else
     echo "Configuring for non-GB200 GPU"
 fi
 
-
+apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
+apt-get autoremove -y  --purge
+apt-get autoclean -y 
 
 if [ -d "/usr/local/cuda-12" ]; then
     echo "/usr/local/cuda-12 exists"
@@ -72,8 +74,8 @@ else
     apt -y install cuda-toolkit-12-8
 fi
 
-rm  /etc/alternatives/cuda
-ln -s /usr/local/cuda-12.8 /etc/alternatives/cuda
+#rm  /etc/alternatives/cuda
+#ln -s /usr/local/cuda-12.8 /etc/alternatives/cuda
 
 
 uv sync --python 3.10
@@ -99,14 +101,14 @@ fi
 
 sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy()).contiguous()/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
 
-
+caption_id=0
 for video_prefix in {000..059}; do
-    mkdir -p "/results/transfer/${control_type}/evaluation/caption_0"
-    metrics_file="/results/transfer/${control_type}/evaluation/caption_0/metrics_${video_prefix}.json"
+    mkdir -p "/results/transfer/${control_type}/evaluation/caption_{$caption_id}"
+    metrics_file="/results/transfer/${control_type}/evaluation/caption_{$caption_id}/metrics_${video_prefix}.json"
     if [ ! -f "$metrics_file" ]; then
         mkdir -p /batches/videos/
         rm -rf /batches/videos/*
-        cp /results/transfer/${control_type}/inference/caption_0/task_${video_prefix}?.mp4 /batches/videos/ || true
+        cp /results/transfer/${control_type}/inference/caption_{$caption_id}/task_${video_prefix}?.mp4 /batches/videos/ || true
 
         # Only run if mp4 files exist
         if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then

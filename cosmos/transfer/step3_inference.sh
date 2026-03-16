@@ -62,9 +62,9 @@ log "Ensuring CUDA $CUDA_VER and UV environment"
 #rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 
 # uninstall existing CUDA installations to avoid conflicts
-#apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
-#apt-get autoremove -y  --purge
-#apt-get autoclean -y 
+apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
+apt-get autoremove -y  --purge
+apt-get autoclean -y 
 
 # install cuda toolkit
 #ARCH=$(uname -m)
