@@ -11,17 +11,8 @@ source "$HOME/.local/bin/env"
 # Ensure environment is ready
 [[ -z "${HF_TOKEN:-}" ]] && { echo "Error: HF_TOKEN is not set."; exit 1; }
 
-# Validate control type argument
-CONTROL_TYPE="${1:-}"
-VALID_TYPES=("edge" "vis" "depth" "seg" "all")
-
-if [[ ! " ${VALID_TYPES[@]} " =~ " ${CONTROL_TYPE} " ]]; then
-    echo "Usage: $0 [${VALID_TYPES[*]// /|}]"
-    exit 1
-fi
-
 # Paths
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # --- Hardware Detection ---
 
@@ -30,6 +21,11 @@ NUM_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 
 echo "Detected $NUM_GPUS x '$GPU_MODEL'"
 [[ $NUM_GPUS -lt 1 ]] && { echo "Error: NVIDIA GPU required."; exit 1; }
+GPU_CONFIGURATIONS=(4 2 1)
+if [[ $NUM_GPUS -gt 4 ]]; then
+    GPU_CONFIGURATIONS=(8 4 2 1)
+fi
+echo "GPU configurations to test: ${GPU_CONFIGURATIONS[*]}"
 
 # Determine CUDA versions based on GPU model
 if [[ "$GPU_MODEL" == *"GB200"* ]]; then
@@ -41,11 +37,6 @@ else
     CUDA_TOOLKIT="cuda-toolkit-12-8"
     UV_EXTRA="cu128"
 fi
-
-
-# --- Environment Setup ---
-
-log() { echo -e "\n--- $1 ---"; }
 
 # uninstall existing CUDA installations to avoid conflicts
 apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
@@ -61,6 +52,13 @@ apt update
 apt install -y "$CUDA_TOOLKIT"
 rm cuda-keyring.deb
 
+# --- Environment Setup ---
+
+log() { echo -e "\n--- $1 ---"; }
+
+# Output directory for results
+tmp_dir="/tmp/throughput"
+
 
 # --- Inference Execution ---
 
@@ -69,9 +67,35 @@ cd /cosmos-transfer2.5
 uv sync --python 3.10 --extra="$UV_EXTRA"
 source .venv/bin/activate
 
-# NUM_GPUS
-#CONTROL_TYPE
-log "Launching distributed inference: $CONTROL_TYPE"
-torchrun --nproc_per_node="$NUM_GPUS" --master_port=12341 "$SCRIPT_DIR/inference.py" --disable-guardrails -o /tmp "control:$CONTROL_TYPE"
+
+run_throughput_test() {
+    local root_dir="$1"
+    local nproc="$2"
+    local output_dir="$3"
+    mkdir -p "$output_dir"
+    
+    # Clean up intermediate outputs
+    rm -rf "$output_dir"/*.mp4
+    torchrun --nproc_per_node="$nproc" --master_port=12341 "$root_dir/throughput.py" --disable-guardrails -o "$output_dir" "control:edge"
+    rm -rf "$output_dir"/*.mp4
+    torchrun --nproc_per_node="$nproc" --master_port=12341 "$root_dir/throughput.py" --disable-guardrails -o "$output_dir" "control:vis"
+    rm -rf "$output_dir"/*.mp4
+    torchrun --nproc_per_node="$nproc" --master_port=12341 "$root_dir/throughput.py" --disable-guardrails -o "$output_dir" "control:depth"
+    rm -rf "$output_dir"/*.mp4
+    torchrun --nproc_per_node="$nproc" --master_port=12341 "$root_dir/throughput.py" --disable-guardrails -o "$output_dir" "control:seg"
+    rm -rf "$output_dir"/*.mp4
+    torchrun --nproc_per_node="$nproc" --master_port=12341 "$root_dir/throughput.py" --disable-guardrails -o "$output_dir" "control:all"
+    # Clean up final outputs
+    rm -rf "$output_dir"/*.mp4
+}
+
+for nproc in "${GPU_CONFIGURATIONS[@]}"; do
+    if ! run_throughput_test "$ROOT_DIR" "$nproc" "$tmp_dir"; then
+        echo "Warning: Test with $nproc GPUs failed"
+    fi
+done
+
+log "Generating throughput summary"
+python "$ROOT_DIR/generate_throughput_summary.py" "$tmp_dir"
 
 deactivate

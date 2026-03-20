@@ -101,25 +101,27 @@ fi
 
 sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy()).contiguous()/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
 
-caption_id=0
-for video_prefix in {000..059}; do
-    mkdir -p "/results/transfer/${control_type}/evaluation/caption_${caption_id}"
-    metrics_file="/results/transfer/${control_type}/evaluation/caption_${caption_id}/metrics_${video_prefix}.json"
-    if [ ! -f "$metrics_file" ]; then
-        mkdir -p /batches/videos/
-        rm -rf /batches/videos/*
-        cp /results/transfer/${control_type}/inference/caption_${caption_id}/task_${video_prefix}?.mp4 /batches/videos/ || true
 
-        # Only run if mp4 files exist
-        if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
-            python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
-            --gt_path /datasets/physical-ai-bench-conditional-generation \
-            --videos_path  /batches/ --output_path "$metrics_file"
-            sleep 10
+for caption_id in {1..5}; do
+    for video_prefix in {000..059}; do
+        mkdir -p "/results/transfer/${control_type}/evaluation/caption_${caption_id}"
+        metrics_file="/results/transfer/${control_type}/evaluation/caption_${caption_id}/metrics_${video_prefix}.json"
+        if [ ! -f "$metrics_file" ]; then
+            mkdir -p /batches/videos/
+            rm -rf /batches/videos/*
+            cp /results/transfer/${control_type}/inference/caption_${caption_id}/task_${video_prefix}?.mp4 /batches/videos/ || true
+
+            # Only run if mp4 files exist
+            if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
+                python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
+                --gt_path /datasets/physical-ai-bench-conditional-generation \
+                --videos_path  /batches/ --output_path "$metrics_file"
+                sleep 10
+            fi
+        else
+            echo "Metrics file $metrics_file already exists, skipping."
         fi
-    else
-        echo "Metrics file $metrics_file already exists, skipping."
-    fi
+    done
 done
 
 
