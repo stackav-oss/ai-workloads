@@ -76,7 +76,8 @@ fi
 
 #rm  /etc/alternatives/cuda
 #ln -s /usr/local/cuda-12.8 /etc/alternatives/cuda
-
+mkdir -p /datasets/results
+ln -sfn /datasets/results /results
 
 uv sync --python 3.10
 uv pip install setuptools
