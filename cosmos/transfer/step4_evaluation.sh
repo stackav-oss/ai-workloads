@@ -82,6 +82,7 @@ uv sync --python 3.10
 uv pip install setuptools
 uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
 uv pip install --reinstall -e third_party/Grounded-SAM-2
+uv pip install --reinstall torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
 uv pip install --reinstall --no-build-isolation -e third_party/Grounded-SAM-2/grounding_dino
 uv pip install --reinstall huggingface-hub==0.36.0
 uv pip install --reinstall xformers==0.0.35
