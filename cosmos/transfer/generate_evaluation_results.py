@@ -28,7 +28,7 @@ def main():
 
     # Collect all global data from JSON files
     all_global_data = []
-    json_files = list(metrics_dir.glob("*.json"))
+    json_files = list(metrics_dir.glob("*/*.json"))
     
     # Filter out results from previous runs if they exist
     json_files = [f for f in json_files if f.name != "all.json"]
