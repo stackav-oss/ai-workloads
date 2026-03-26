@@ -99,43 +99,49 @@ https://arxiv.org/pdf/2511.00062 Table 12
 | Cosmos-Transfer2.5-2B [Uniform] (GB200) |     N/A      |      N/A      |       N/A       |      N/A      |       N/A       |
 
 
-### Runtime Metrics
+### Runtime Metrics For Single Video Generation
 
-H100
-| Control Type | GPU  | GPU # | Time        |
-|--------------|------|-------|-------------|
-| all          | H100 |   1   |    487.8528 |
-| all          | B200 |   1   |    264.1238 |
-| all          | H100 |   2   |    283.9539 |
-| all          | B200 |   2   |    181.4005 |
-| all          | H100 |   4   |    165.2370 |
-| all          | B200 |   4   |    125.1487 |
-| all          | H100 |   8   |    105.4270 |
-| depth        | H100 |   1   |    351.1093 |
-| depth        | B200 |   1   |    180.1115 |
-| depth        | H100 |   2   |    201.8076 |
-| depth        | B200 |   2   |    120.1604 |
-| depth        | H100 |   4   |    114.6752 |
-| depth        | B200 |   4   |    78.0054  |
-| depth        | H100 |   8   |    73.2629  |
-| edge         | H100 |   1   |    351.2043 |
-| edge         | B200 |   1   |    180.6032 |
-| edge         | H100 |   2   |    201.5254 |
-| edge         | B200 |   2   |    120.9961 |
-| edge         | H100 |   4   |    116.1332 |
-| edge         | B200 |   4   |    77.8873  |
-| edge         | H100 |   8   |    73.1971  |
-| seg          | H100 |   1   |    351.1853 |
-| seg          | B200 |   1   |    180.3932 |
-| seg          | H100 |   2   |    201.5983 |
-| seg          | B200 |   2   |    120.6448 |
-| seg          | H100 |   4   |    114.9761 |
-| seg          | B200 |   4   |    77.9918  |
-| seg          | H100 |   8   |    72.9155  |
-| vis          | H100 |   1   |    350.8908 |
-| vis          | B200 |   1   |    180.4721 |
-| vis          | H100 |   2   |    201.9935 |
-| vis          | B200 |   2   |    120.0438 |
-| vis          | H100 |   4   |    115.3086 |
-| vis          | H100 |   8   |    72.9012  |
-| vis          | B200 |   4   |    77.7796  |
+```bash
+Output video dimensions: 640x480
+Output video frame count: 121
+Output video frame rate: 30
+Output video length: 5 seconds
+```
+
+| Control Type | GPU  | GPU # | Seconds|
+|--------------|------|-------|--------|
+| Blur         | H100 |   1   |    350 |
+| Blur         | B200 |   1   |    180 |
+| Blur         | H100 |   2   |    201 |
+| Blur         | B200 |   2   |    120 |
+| Blur         | H100 |   4   |    115 |
+| Blur         | B200 |   4   |    77  |
+| Blur         | H100 |   8   |    72  |
+| Edge         | H100 |   1   |    351 |
+| Edge         | B200 |   1   |    180 |
+| Edge         | H100 |   2   |    201 |
+| Edge         | B200 |   2   |    120 |
+| Edge         | H100 |   4   |    116 |
+| Edge         | B200 |   4   |    77  |
+| Edge         | H100 |   8   |    73  |
+| Depth        | H100 |   1   |    351 |
+| Depth        | B200 |   1   |    180 |
+| Depth        | H100 |   2   |    201 |
+| Depth        | B200 |   2   |    120 |
+| Depth        | H100 |   4   |    114 |
+| Depth        | B200 |   4   |    78  |
+| Depth        | H100 |   8   |    73  |
+| Seg          | H100 |   1   |    351 |
+| Seg          | B200 |   1   |    180 |
+| Seg          | H100 |   2   |    201 |
+| Seg          | B200 |   2   |    120 |
+| Seg          | H100 |   4   |    114 |
+| Seg          | B200 |   4   |    77  |
+| Seg          | H100 |   8   |    72  |
+| Uniform      | H100 |   1   |    487 |
+| Uniform      | B200 |   1   |    264 |
+| Uniform      | H100 |   2   |    283 |
+| Uniform      | B200 |   2   |    181 |
+| Uniform      | H100 |   4   |    165 |
+| Uniform      | B200 |   4   |    125 |
+| Uniform      | H100 |   8   |    105 |
