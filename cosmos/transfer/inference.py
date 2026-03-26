@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Annotated, Union
 import json
 import pydantic
@@ -130,27 +129,7 @@ if __name__ == "__main__":
         )
     except Exception as e:
         handle_tyro_exception(e)
-
-    if is_rank0():
-        print("\n" + "="*50)
-        print("INFERENCE CONFIGURATION")
-        print("="*50)
-        for field, value in args.__dict__.items():
-            print(f"[{field.upper()}]: {type(value)}")
-            print(value)
-            print("-" * 30)
-        print("="*50 + "\n")
     
-    #from cosmos_transfer2.inference import Control2WorldInference
-    #init_output_dir(args.setup.output_dir, profile=args.setup.profile)
-    ## Get batch hint keys based on active control type
-    #batch_hint_keys = CONTROL_TYPE_TO_HINTS.get(type(args.control), [])
-    #print(f"Using batch hint keys: {batch_hint_keys} for control type: {type(args.control).__name__}")
-    #inference_engine = Control2WorldInference(args.setup, batch_hint_keys=batch_hint_keys)
-    #for key, value in inference_engine.__dict__.items():
-    #    print(f"[{key.upper()}]: {(value)}")
-
-
     main(args)
 
     cleanup_environment()
