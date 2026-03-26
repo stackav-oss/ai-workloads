@@ -53,6 +53,7 @@ cd /ai-workloads/cosmos/transfer
 ./step2_download_data.sh
 ./step3_inference.sh   {control_type}   # 'vis', 'edge', 'depth', 'seg', 'all'
 ./step4_evaluation.sh  {control_type}   # 'vis', 'edge', 'depth', 'seg', 'all'
+./step5_throughput.sh
 ```
 
 
@@ -62,7 +63,7 @@ cd /ai-workloads/cosmos/transfer
 Model: Cosmos-Transfer2.5-2B
 ```
 
-### Reference Paper Results
+### Reference Quality Scores
 https://arxiv.org/pdf/2511.00062 Table 12
 
 |    Model                                |  Blur SSIM ↑ |   Edge F1  ↑  | Depth si-RMSE ↓ |  Mask mIoU  ↑ | Quality Score ↑ |
@@ -74,7 +75,7 @@ https://arxiv.org/pdf/2511.00062 Table 12
 | Cosmos-Transfer2.5-2B [Uniform]         |     0.87     |      0.41     |       0.67      |      0.76     |       9.31      |
 
 
-### Benchmark Results
+### Quality Scores with 1 prompt variation
 
 |    Model                                |  Blur SSIM ↑ |   Edge F1  ↑  | Depth si-RMSE ↓ |  Mask mIoU  ↑ | Quality Score ↑ |
 |-----------------------------------------|--------------|---------------|-----------------|---------------|-----------------|
@@ -85,3 +86,56 @@ https://arxiv.org/pdf/2511.00062 Table 12
 | Cosmos-Transfer2.5-2B [Seg]     (GB200) |     0.65     |      0.14     |       1.07      |      0.71     |       8.16      |
 | Cosmos-Transfer2.5-2B [Uniform] (GB200) |     0.46     |      0.18     |       1.05      |      0.68     |       6.78      |
 
+
+### Quality Scores with 6 prompt variation
+
+|    Model                                |  Blur SSIM ↑ |   Edge F1  ↑  | Depth si-RMSE ↓ |  Mask mIoU  ↑ | Quality Score ↑ |
+|-----------------------------------------|--------------|---------------|-----------------|---------------|-----------------|
+| Cosmos-Transfer2.5-2B [Blur]    (GB200) |     0.88     |      0.17     |       0.88      |      0.72     |       8.14      |
+| Cosmos-Transfer2.5-2B [Edge]    (GB200) |     0.73     |      0.40     |       0.81      |      0.73     |       8.89      |
+| Cosmos-Transfer2.5-2B [Edge]    (H100)  |     0.73     |      0.39     |       0.84      |      0.73     |       8.99      |
+| Cosmos-Transfer2.5-2B [Depth]   (GB200) |     0.66     |      0.17     |       0.89      |      0.72     |       8.67      |
+| Cosmos-Transfer2.5-2B [Seg]     (GB200) |     0.62     |      0.13     |       1.19      |      0.71     |       8.25      |
+| Cosmos-Transfer2.5-2B [Uniform] (GB200) |     N/A      |      N/A      |       N/A       |      N/A      |       N/A       |
+
+
+### Runtime Metrics
+
+H100
+| Control Type | GPU  | GPU # | Time        |
+|--------------|------|-------|-------------|
+| all          | H100 |   1   |    487.8528 |
+| all          | B200 |   1   |    264.1238 |
+| all          | H100 |   2   |    283.9539 |
+| all          | B200 |   2   |    181.4005 |
+| all          | H100 |   4   |    165.2370 |
+| all          | B200 |   4   |    125.1487 |
+| all          | H100 |   8   |    105.4270 |
+| depth        | H100 |   1   |    351.1093 |
+| depth        | B200 |   1   |    180.1115 |
+| depth        | H100 |   2   |    201.8076 |
+| depth        | B200 |   2   |    120.1604 |
+| depth        | H100 |   4   |    114.6752 |
+| depth        | B200 |   4   |    78.0054  |
+| depth        | H100 |   8   |    73.2629  |
+| edge         | H100 |   1   |    351.2043 |
+| edge         | B200 |   1   |    180.6032 |
+| edge         | H100 |   2   |    201.5254 |
+| edge         | B200 |   2   |    120.9961 |
+| edge         | H100 |   4   |    116.1332 |
+| edge         | B200 |   4   |    77.8873  |
+| edge         | H100 |   8   |    73.1971  |
+| seg          | H100 |   1   |    351.1853 |
+| seg          | B200 |   1   |    180.3932 |
+| seg          | H100 |   2   |    201.5983 |
+| seg          | B200 |   2   |    120.6448 |
+| seg          | H100 |   4   |    114.9761 |
+| seg          | B200 |   4   |    77.9918  |
+| seg          | H100 |   8   |    72.9155  |
+| vis          | H100 |   1   |    350.8908 |
+| vis          | B200 |   1   |    180.4721 |
+| vis          | H100 |   2   |    201.9935 |
+| vis          | B200 |   2   |    120.0438 |
+| vis          | H100 |   4   |    115.3086 |
+| vis          | H100 |   8   |    72.9012  |
+| vis          | B200 |   4   |    77.7796  |

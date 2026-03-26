@@ -45,39 +45,29 @@ get_gpu_info() {
 check_hf_token
 get_gpu_info
 
-if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
-    echo "Configuring for NVIDIA GB200"
-    sed -i -e 's/"decord"/"decord2"/g'  "$PAI_DIR/pyproject.toml"
-else
-    echo "Configuring for non-GB200 GPU"
-fi
-
+# remove existing CUDA installations to avoid conflicts
 apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
 apt-get autoremove -y  --purge
 apt-get autoclean -y 
 
-if [ -d "/usr/local/cuda-12" ]; then
-    echo "/usr/local/cuda-12 exists"
+# Install CUDA toolkit 12.8
+arch=$(uname -m)
+if [ "$arch" == "aarch64" ]; then
+    echo "Running on ARM architecture (aarch64)"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
 else
-    echo "/usr/local/cuda-12 does not exist"
-    arch=$(uname -m)
-    if [ "$arch" == "aarch64" ]; then
-        echo "Running on ARM architecture (aarch64)"
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/sbsa/cuda-keyring_1.1-1_all.deb
-    else
-        echo "Running on x86_64 architecture"
-        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
-    fi
-
-    dpkg -i cuda-keyring_1.1-1_all.deb
-    apt-get update
-    apt -y install cuda-toolkit-12-8
+    echo "Running on x86_64 architecture"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
 fi
+dpkg -i cuda-keyring_1.1-1_all.deb
+apt-get update
+apt -y install cuda-toolkit-12-8
 
-#rm  /etc/alternatives/cuda
-#ln -s /usr/local/cuda-12.8 /etc/alternatives/cuda
-mkdir -p /datasets/results
-ln -sfn /datasets/results /results
+# Handle aarch64 specific requirements
+if [ "$arch" == "aarch64" ]; then
+    # decord is not compatible with aarch64 architecture, use decord2 instead which is a fork of decord with aarch64 support
+    sed -i -e 's/"decord"/"decord2"/g'  "$PAI_DIR/pyproject.toml"
+fi
 
 uv sync --python 3.10
 uv pip install setuptools
@@ -101,6 +91,7 @@ if [ $available_gpus -lt 1 ]; then
     exit 1
 fi
 
+# Fix for transformers image processing utils
 sed -i -e 's/torch.from_numpy(image).contiguous()/torch.from_numpy(image.copy()).contiguous()/g'  "/physical-ai-bench/conditional_generation/.venv/lib/python3.10/site-packages/transformers/image_processing_utils_fast.py"
 
 
@@ -115,10 +106,10 @@ for caption_id in {0..5}; do
 
             # Only run if mp4 files exist
             if ls /batches/videos/*.mp4 1> /dev/null 2>&1; then
-                python -m torch.distributed.run --standalone --nproc_per_node 4 compute_metrics.py calculate-metrics \
+                python -m torch.distributed.run --standalone --nproc_per_node $available_gpus compute_metrics.py calculate-metrics \
                 --gt_path /datasets/physical-ai-bench-conditional-generation \
                 --videos_path  /batches/ --output_path "$metrics_file"
-                sleep 60
+                sleep 60 # Sleep to ensure that previous processes have released GPU memory before starting the next one
             fi
         else
             echo "Metrics file $metrics_file already exists, skipping."
@@ -127,5 +118,5 @@ for caption_id in {0..5}; do
 done
 
 
-python "/$ROOT_DIR/generate_evaluation_results.py" --metrics_dir "/results/transfer/${control_type}/evaluation/caption_0"
+python "/$ROOT_DIR/generate_evaluation_results.py" --metrics_dir "/results/transfer/${control_type}/evaluation/"
 deactivate

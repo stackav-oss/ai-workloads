@@ -44,22 +44,15 @@ else
     UV_EXTRA="cu128"
 fi
 
-#CUDA_DIR="/usr/local/cuda-$CUDA_VER"
 
 # --- Environment Setup ---
 
 log() { echo -e "\n--- $1 ---"; }
 
 log "Setting up system directories"
-mkdir -p /datasets/results
-ln -sfn /datasets/results /results
 mkdir -p "$INFERENCE_DIR"
-#rm -rf "${INFERENCE_DIR:?}"/*
 
 log "Ensuring CUDA $CUDA_VER and UV environment"
-#if [[ ! -d "$CUDA_DIR" ]]; then
-#rm -rf /usr/local/cuda-12; rm -rf /usr/local/cuda-12.8/;
-#rm -rf /usr/local/cuda-13; rm -rf /usr/local/cuda-13.0/;
 
 # uninstall existing CUDA installations to avoid conflicts
 apt-get purge -y --remove "*cublas*" "*cufft*" "*curand*" "*cusolver*" "*cusparse*" "*npp*" "*nvjpeg*" "cuda*" "nsight*"
@@ -75,10 +68,7 @@ apt update
 apt install -y "$CUDA_TOOLKIT"
 rm cuda-keyring.deb
 
-#fi
 
-# Update system-wide CUDA symlink
-#ln -sfn "$CUDA_DIR" /etc/alternatives/cuda
 
 # --- Inference Execution ---
 

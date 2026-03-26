@@ -58,9 +58,10 @@ setup_python_environment() {
     
     # Fix VLLM version to 0.14.0 for compatibility
     sed -i -e 's/"vllm>=0.10.1"/"vllm==0.14.0"/g' "$PAI_DIR/pyproject.toml"
-    # Handle GB200 specific requirements
-    if [ "$GPU_MODEL" == "NVIDIA GB200" ]; then
-        echo "Configuring for NVIDIA GB200"
+
+    arch=$(uname -m)
+    # Handle aarch64 specific requirements
+    if [ "$arch" == "aarch64" ]; then
         sed -i -e 's/"decord"/"decord2"/g' -e 's/qwen-vl-utils\[decord\]/qwen-vl-utils/g' "$PAI_DIR/pyproject.toml"
     fi
 
