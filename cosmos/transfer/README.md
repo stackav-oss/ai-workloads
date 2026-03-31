@@ -106,29 +106,7 @@ Output video frame rate: 30
 Output video length: 5 seconds
 ```
 
-
 #### H100
-
-| Control Type | GPU  | GPU # | Seconds|
-|--------------|------|-------|--------|
-| Blur         | B200 |   1   |    180 |
-| Blur         | B200 |   2   |    120 |
-| Blur         | B200 |   4   |    77  |
-| Edge         | B200 |   1   |    180 |
-| Edge         | B200 |   2   |    120 |
-| Edge         | B200 |   4   |    77  |
-| Depth        | B200 |   1   |    180 |
-| Depth        | B200 |   2   |    120 |
-| Depth        | B200 |   4   |    78  |
-| Seg          | B200 |   1   |    180 |
-| Seg          | B200 |   2   |    120 |
-| Seg          | B200 |   4   |    77  |
-| Uniform      | B200 |   1   |    264 |
-| Uniform      | B200 |   2   |    181 |
-| Uniform      | B200 |   4   |    125 |
-
-
-#### B200
 
 | Control Type | GPU  | GPU # | Seconds|
 |--------------|------|-------|--------|
@@ -152,3 +130,23 @@ Output video length: 5 seconds
 | Uniform      | H100 |   2   |    283 |
 | Uniform      | H100 |   4   |    165 |
 | Uniform      | H100 |   8   |    105 |
+
+#### B200
+
+| Control Type | GPU  | GPU # | Seconds|
+|--------------|------|-------|--------|
+| Blur         | B200 |   1   |    180 |
+| Blur         | B200 |   2   |    120 |
+| Blur         | B200 |   4   |    77  |
+| Edge         | B200 |   1   |    180 |
+| Edge         | B200 |   2   |    120 |
+| Edge         | B200 |   4   |    77  |
+| Depth        | B200 |   1   |    180 |
+| Depth        | B200 |   2   |    120 |
+| Depth        | B200 |   4   |    78  |
+| Seg          | B200 |   1   |    180 |
+| Seg          | B200 |   2   |    120 |
+| Seg          | B200 |   4   |    77  |
+| Uniform      | B200 |   1   |    264 |
+| Uniform      | B200 |   2   |    181 |
+| Uniform      | B200 |   4   |    125 |
