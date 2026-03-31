@@ -81,7 +81,6 @@ https://arxiv.org/pdf/2511.00062 Table 12
 |-----------------------------------------|--------------|---------------|-----------------|---------------|-----------------|
 | Cosmos-Transfer2.5-2B [Blur]    (GB200) |     0.88     |      0.17     |       0.86      |      0.71     |       7.44      |
 | Cosmos-Transfer2.5-2B [Edge]    (GB200) |     0.76     |      0.39     |       0.71      |      0.74     |       8.31      |
-| Cosmos-Transfer2.5-2B [Edge]    (H100)  |     0.76     |      0.39     |       0.71      |      0.74     |       8.43      |
 | Cosmos-Transfer2.5-2B [Depth]   (GB200) |     0.69     |      0.18     |       0.86      |      0.72     |       8.04      |
 | Cosmos-Transfer2.5-2B [Seg]     (GB200) |     0.65     |      0.14     |       1.07      |      0.71     |       8.16      |
 | Cosmos-Transfer2.5-2B [Uniform] (GB200) |     0.46     |      0.18     |       1.05      |      0.68     |       6.78      |
@@ -93,7 +92,6 @@ https://arxiv.org/pdf/2511.00062 Table 12
 |-----------------------------------------|--------------|---------------|-----------------|---------------|-----------------|
 | Cosmos-Transfer2.5-2B [Blur]    (GB200) |     0.88     |      0.17     |       0.88      |      0.72     |       8.14      |
 | Cosmos-Transfer2.5-2B [Edge]    (GB200) |     0.73     |      0.40     |       0.81      |      0.73     |       8.89      |
-| Cosmos-Transfer2.5-2B [Edge]    (H100)  |     0.73     |      0.39     |       0.84      |      0.73     |       8.99      |
 | Cosmos-Transfer2.5-2B [Depth]   (GB200) |     0.66     |      0.17     |       0.89      |      0.72     |       8.67      |
 | Cosmos-Transfer2.5-2B [Seg]     (GB200) |     0.62     |      0.13     |       1.19      |      0.71     |       8.25      |
 | Cosmos-Transfer2.5-2B [Uniform] (GB200) |     N/A      |      N/A      |       N/A       |      N/A      |       N/A       |
@@ -108,40 +106,49 @@ Output video frame rate: 30
 Output video length: 5 seconds
 ```
 
+
+#### H100
+
+| Control Type | GPU  | GPU # | Seconds|
+|--------------|------|-------|--------|
+| Blur         | B200 |   1   |    180 |
+| Blur         | B200 |   2   |    120 |
+| Blur         | B200 |   4   |    77  |
+| Edge         | B200 |   1   |    180 |
+| Edge         | B200 |   2   |    120 |
+| Edge         | B200 |   4   |    77  |
+| Depth        | B200 |   1   |    180 |
+| Depth        | B200 |   2   |    120 |
+| Depth        | B200 |   4   |    78  |
+| Seg          | B200 |   1   |    180 |
+| Seg          | B200 |   2   |    120 |
+| Seg          | B200 |   4   |    77  |
+| Uniform      | B200 |   1   |    264 |
+| Uniform      | B200 |   2   |    181 |
+| Uniform      | B200 |   4   |    125 |
+
+
+#### B200
+
 | Control Type | GPU  | GPU # | Seconds|
 |--------------|------|-------|--------|
 | Blur         | H100 |   1   |    350 |
-| Blur         | B200 |   1   |    180 |
 | Blur         | H100 |   2   |    201 |
-| Blur         | B200 |   2   |    120 |
 | Blur         | H100 |   4   |    115 |
-| Blur         | B200 |   4   |    77  |
 | Blur         | H100 |   8   |    72  |
 | Edge         | H100 |   1   |    351 |
-| Edge         | B200 |   1   |    180 |
 | Edge         | H100 |   2   |    201 |
-| Edge         | B200 |   2   |    120 |
 | Edge         | H100 |   4   |    116 |
-| Edge         | B200 |   4   |    77  |
 | Edge         | H100 |   8   |    73  |
 | Depth        | H100 |   1   |    351 |
-| Depth        | B200 |   1   |    180 |
 | Depth        | H100 |   2   |    201 |
-| Depth        | B200 |   2   |    120 |
 | Depth        | H100 |   4   |    114 |
-| Depth        | B200 |   4   |    78  |
 | Depth        | H100 |   8   |    73  |
 | Seg          | H100 |   1   |    351 |
-| Seg          | B200 |   1   |    180 |
 | Seg          | H100 |   2   |    201 |
-| Seg          | B200 |   2   |    120 |
 | Seg          | H100 |   4   |    114 |
-| Seg          | B200 |   4   |    77  |
 | Seg          | H100 |   8   |    72  |
 | Uniform      | H100 |   1   |    487 |
-| Uniform      | B200 |   1   |    264 |
 | Uniform      | H100 |   2   |    283 |
-| Uniform      | B200 |   2   |    181 |
 | Uniform      | H100 |   4   |    165 |
-| Uniform      | B200 |   4   |    125 |
 | Uniform      | H100 |   8   |    105 |
