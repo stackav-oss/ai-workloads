@@ -74,6 +74,7 @@ https://arxiv.org/pdf/2511.00062 Table 12
 | Cosmos-Transfer2.5-2B [Seg]             |     0.68     |      0.14     |       1.02      |      0.71     |       8.81      |
 | Cosmos-Transfer2.5-2B [Uniform]         |     0.87     |      0.41     |       0.67      |      0.76     |       9.31      |
 
+The config values used for testing was not specified in the paper. An issue is created to get learn the details of the evaluation setup here. https://github.com/nvidia-cosmos/cosmos-transfer2.5/issues/196
 
 ### Quality Scores with 1 prompt variation
 
