@@ -1,0 +1,19 @@
+[project]
+name = "lidar-vae"
+version = "0.1.0"
+description = "LiDAR VAE training and visualization bundle"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "numpy",
+    "einops",
+    "omegaconf",
+    "click",
+    "tqdm",
+    "tensorboard",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"

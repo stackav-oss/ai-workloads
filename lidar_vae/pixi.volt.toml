@@ -1,0 +1,57 @@
+[workspace]
+name = "lidar-vae"
+version = "0.1.0"
+description = "LiDAR VAE training and visualization bundle (ARM64/Volt)"
+channels = ["conda-forge", "nodefaults"]
+platforms = ["linux-aarch64"]
+
+[tasks]
+train = "python autoencoder/train_lidar_only.py"
+visualize = "python autoencoder/visualize_lidar.py"
+format = "ruff format autoencoder jormungand"
+
+[dependencies]
+python = "3.12.*"
+libgl = "*"
+shapely = ">=2.0"
+numpy = ">=2.4.3,<2.5"
+setuptools = ">=60,<82"
+pip = "*"
+
+[pypi-dependencies]
+# Core ML — use default index (has aarch64 wheels)
+torch = ">=2.11.0"
+torchvision = ">=0.26"
+# Shared deps
+einops = ">=0.8.2, <0.9"
+dltype = ">=0.13.2, <0.14"
+pyquaternion = ">=0.9.9, <0.10"
+opencv-python-headless = ">=4.13.0.92, <5"
+pylance = ">=4.0.0, <5"
+click = "==8.3.2"
+pyarrow = "==23.0.1"
+# jormungand runtime deps
+nuscenes-devkit = ">=1.2.0, <2"
+scikit-learn = ">=1.8.0, <2"
+scipy = ">=1.10.1, <2"
+cachetools = ">=5.0.0, <6"
+threadpoolctl = ">=3.0.0"
+matplotlib = ">=3.10.8, <4"
+pandas = ">=3.0.2, <4"
+viser = ">=1.0.26, <2"
+av2 = ">=0.2.1, <0.3"
+# OpenMMLab ecosystem
+mmengine = ">=0.7.1, <1"
+mmdet = ">=3.0.0, <3.4.0"
+# lidar_vae specific (spconv installed separately in Dockerfile)
+omegaconf = "*"
+tqdm = "*"
+tensorboard = "*"
+ruff = "*"
+timm = "*"
+lance = ">=1.2.1, <2"
+
+[pypi-options.dependency-overrides]
+numpy = ">=2.4.3, <2.5"
+matplotlib = ">=3.10.8"
+shapely = ">=2.0.0"

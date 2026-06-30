@@ -11,3 +11,6 @@ clip contains evaluation scripts for clip, siglip1 and siglip2 models.
 
 ## Cosmos
 Cosmos contains evaluation scripts for nvidia cosmos predict and tranfer models.
+
+## LiDAR VAE
+lidar_vae contains the LiDAR-only NuScenes VAE training workload.
