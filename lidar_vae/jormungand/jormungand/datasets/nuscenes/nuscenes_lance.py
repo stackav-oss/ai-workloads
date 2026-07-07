@@ -22,7 +22,6 @@ import cv2
 import lance
 import numpy as np
 import torch
-import json
 
 from jormungand.datasets.nuscenes.nuscenes_class_to_colors import NUSCENES_COLORS
 from jormungand.datastructures.sequential_data_renderer import (
@@ -155,7 +154,7 @@ class NuScenesLanceDataset(torch.utils.data.Dataset[NuScenesDataFrame]):
         self,
         data_config: NuScenesDataConfig,
         version: str,
-        data_root: str | Path = "s3://volt-dev-user-shared-data/nuScenes/sensor/",
+        data_root: str | Path = "/data/nuscenes",
         *,
         lance_path: str | Path | None = None,
         scene_names: Sequence[str] | None = None,
@@ -181,19 +180,6 @@ class NuScenesLanceDataset(torch.utils.data.Dataset[NuScenesDataFrame]):
                 f"No NuScenes Lance dataset was found for version '{self.version}' at '{self.lance_path}'."
             )
 
-        if self.lance_path.startswith("s3://volt-dev-user-shared-data"):
-            volt_config_path = Path(
-                os.environ.get("VOLT_CONFIG_DIR", Path.home() / ".volt" / "config")
-            )
-            if volt_config_path.exists():
-                with open(volt_config_path) as f:
-                    config = json.load(f)
-                    os.environ["AWS_SESSION_TOKEN"] = config.get("sessionToken", "")
-                    os.environ["AWS_ACCESS_KEY_ID"] = config.get("accessKeyId", "")
-                    os.environ["AWS_SECRET_ACCESS_KEY"] = config.get(
-                        "secretAccessKey", ""
-                    )
-                os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
         self._lance_dataset = lance.dataset(self.lance_path)
         self._lance_pid = os.getpid()
         # _all_records: full-frequency index for adjacency navigation (prev/next frame)
@@ -475,7 +461,7 @@ def _frame_summary(frame: NuScenesDataFrame) -> str:
 @click.option(
     "--data-root",
     type=str,
-    default="s3://volt-dev-user-shared-data/nuScenes/sensor/",
+    default="/data/nuscenes",
     show_default=True,
 )
 @click.option("--index", type=int, default=0, show_default=True)

@@ -1379,9 +1379,7 @@ def kl_weight_scale_for_step(
 
 
 @click.command()
-@click.option(
-    "--data-root", type=str, default="s3://volt-dev-user-shared-data/nuScenes/sensor/"
-)
+@click.option("--data-root", type=str, default="/data/nuscenes")
 @click.option("--version", type=str, default="v1.0-trainval")
 @click.option("--batch-size", default=1, help="Per-GPU batch size")
 @click.option("--max-steps", default=50000)

@@ -3,7 +3,7 @@
 This repository contains a LiDAR-only VAE training bundle for reconstructing
 NuScenes point clouds from learned neural feature grids. It includes the model
 code, the embedded Jormungand NuScenes dataloader, Docker/Pixi environment
-files, Volt deployment files, evaluation metrics, and saved GT/PRED renders.
+files, evaluation metrics, and saved GT/PRED renders.
 
 ## Repository Layout
 
@@ -15,9 +15,8 @@ files, Volt deployment files, evaluation metrics, and saved GT/PRED renders.
   the training script.
 - `jormungand/jormungand/datasets/nuscenes/`: NuScenes Lance conversion,
   loading, visualization, and utility code.
-- `Dockerfile`, `Dockerfile.volt`, `pixi.toml`, `pixi.volt.toml`: reproducible
-  local and Volt environments.
-- `autoencoder.yaml`: Volt Kubernetes deployment template.
+- `Dockerfile`, `pixi.toml`, `build_pig.sh`, `launch.sh`: reproducible local
+  GPU environment.
 
 ## Setting Up The Repository
 
@@ -31,8 +30,8 @@ Build the local GPU image:
 bash build_pig.sh
 ```
 
-Launch the container with GPU access, the NuScenes mount, AWS/Volt config, and
-port `8080` forwarded for Viser:
+Launch the container with GPU access, the NuScenes mount, and port `8080`
+forwarded for Viser:
 
 ```bash
 bash launch.sh
@@ -46,40 +45,6 @@ is already in use:
 ```bash
 LIDAR_VAE_HOST_PORT=8081 bash launch.sh
 ```
-
-### Volt Build And Deployment
-
-Build the ARM64 image used on Volt:
-
-```bash
-bash build_volt.sh --local
-```
-
-When the build finishes, the script prints the exact mirror command. It should
-look like:
-
-```bash
-AWS_PROFILE=<YOUR_VOLT_PROFILE> ./mirror_to_ecr.sh --local <GHCR_TAG>
-```
-
-After mirroring:
-
-1. Update the image annotation in `autoencoder.yaml` with the printed ECR tag.
-2. Apply the deployment:
-
-```bash
-AWS_PROFILE=<YOUR_VOLT_PROFILE> volt-dev kubectl apply -f autoencoder.yaml
-```
-
-3. Find the pod name:
-
-```bash
-AWS_PROFILE=<YOUR_VOLT_PROFILE> volt-dev kubectl get pods -l app=lidar-vae
-```
-
-The deployment starts in `/workspace/ai-workloads/lidar_vae/autoencoder` and
-sets `PYTHONPATH` for the embedded `autoencoder`, `jormungand`, and
-`third_party/OpenSceneFlow` packages.
 
 ## Dataset
 
@@ -173,50 +138,33 @@ Shape summary:
 `train_lidar_only.py` is already LiDAR-only, so no camera-disable flag is
 required.
 
-### Volt, 4 GPUs
+### Multi GPU
 
-Set the pod and run name on your machine:
+From `lidar_vae/autoencoder`, set the run name and Python path:
 
 ```bash
-export POD=<YOUR_LIDAR_VAE_POD>
 export RUN_NAME=ai_workloads_rec
+mkdir -p logs checkpoints/${RUN_NAME}/lidar_only
+export PYTHONPATH=$(pwd):$(pwd)/../jormungand:$(pwd)/../third_party/OpenSceneFlow:${PYTHONPATH}
 ```
 
-Start training:
+Start four-GPU training:
 
 ```bash
-AWS_PROFILE=magic volt-dev kubectl exec "$POD" -- bash -lc "
-  cd /workspace/ai-workloads/lidar_vae/autoencoder
-  mkdir -p logs checkpoints/${RUN_NAME}/lidar_only
-  export PATH=/usr/local/cuda-12.9/bin:/opt/lidar-vae-pixi/.pixi/envs/default/bin:\$PATH
-  export PYTHONPATH=/workspace/ai-workloads/lidar_vae/autoencoder:/workspace/ai-workloads/lidar_vae/jormungand:/workspace/ai-workloads/lidar_vae/third_party/OpenSceneFlow
-  export CUDA_VISIBLE_DEVICES=0,1,2,3
-  export PYTHONUNBUFFERED=1
-  nohup torchrun --nproc_per_node=4 train_lidar_only.py \
-    --max-steps 200000 \
-    --batch-size 2 \
-    --checkpoint-dir checkpoints/${RUN_NAME}/lidar_only \
-    --vae-warmup-steps 10000 \
-    --kl-weight 5e-1 \
-    --kl-weight-schedule cyclic \
-    --kl-cycle-count 4 \
-    --kl-cycle-ramp-fraction 0.5 \
-    --lr 1e-3 \
-    > logs/${RUN_NAME}.log 2>&1 < /dev/null &
-  echo \$! > logs/${RUN_NAME}.pid
-  echo logs/${RUN_NAME}.log
-"
+CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 train_lidar_only.py \
+  --max-steps 200000 \
+  --batch-size 2 \
+  --checkpoint-dir checkpoints/${RUN_NAME}/lidar_only \
+  --vae-warmup-steps 10000 \
+  --kl-weight 5e-1 \
+  --kl-weight-schedule cyclic \
+  --kl-cycle-count 4 \
+  --kl-cycle-ramp-fraction 0.5 \
+  --lr 1e-3 \
+  > logs/${RUN_NAME}.log 2>&1 < /dev/null &
 ```
 
-Follow the logs:
-
-```bash
-AWS_PROFILE=magic volt-dev kubectl exec "$POD" -- \
-  tail -f /workspace/ai-workloads/lidar_vae/autoencoder/logs/${RUN_NAME}.log
-```
-
-If your pod still mounts this code at a legacy path, replace
-`/workspace/ai-workloads/lidar_vae` consistently in both commands.
+Follow progress with `tail -f logs/${RUN_NAME}.log`.
 
 ### Single GPU
 

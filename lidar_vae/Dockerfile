@@ -63,8 +63,6 @@ ENV LD_LIBRARY_PATH=${PIXI_ENV}/lib:${LD_LIBRARY_PATH}
 ENV PATH=${PIXI_ENV}/bin:${PATH}
 ENV PYTHONPATH=/project/ai-workloads/lidar_vae/autoencoder:/project/ai-workloads/lidar_vae/jormungand:/project/ai-workloads/lidar_vae/third_party/OpenSceneFlow
 ENV PYTHONUNBUFFERED=1
-ENV VOLT_CONFIG_DIR=/home/${USERNAME}/.volt/config
-ENV AWS_PROFILE=magic
 
 RUN echo 'eval "$(cd /opt/lidar-vae-pixi && pixi shell-hook)"' >> /root/.bashrc \
     && echo 'eval "$(cd /opt/lidar-vae-pixi && pixi shell-hook)"' >> /root/.profile \
