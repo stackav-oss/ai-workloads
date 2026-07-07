@@ -216,50 +216,13 @@ Training snapshot at step `80000/200000`, epoch `3`, learning rate
 | Metric | Value |
 | --- | ---: |
 | depth_loss | 0.0576 |
-| eikonal_loss | 0.0022 |
-| free_space_loss | 0.0000 |
-| intensity_loss | 0.1073 |
-| kl_loss | 0.0096 |
-| kl_loss_raw | 0.1030 |
-| kl_weight | 0.0937 |
-| kl_weight_scale | 0.9368 |
-| latent_channel_mean_abs_p95 | 0.0251 |
-| latent_channel_std_error_p95 | 0.0205 |
-| latent_gaussian_score | 0.1486 |
-| latent_mu_mean | 0.0039 |
-| latent_mu_std | 0.3012 |
-| latent_std_mean | 0.9341 |
-| latent_std_std | 0.1737 |
-| latent_true_kl | 0.1030 |
-| latent_z_mean | 0.0039 |
-| latent_z_std | 0.9970 |
-| occupancy_loss | 0.0096 |
-| raydrop_loss | 0.0274 |
-| sdf_loss | 0.0001 |
 
 Test-set validation at step `80000` over `3004` batches:
 
 | Metric | Value |
 | --- | ---: |
 | depth_loss | 0.0615 |
-| intensity_loss | 0.0897 |
-| kl_loss | 0.0108 |
-| kl_weight | 0.0947 |
-| kl_weight_scale | 0.9473 |
-| latent_channel_mean_abs_p95 | 0.2462 |
-| latent_channel_std_error_p95 | 0.0639 |
-| latent_gaussian_score | 0.4243 |
-| latent_true_kl | 0.1142 |
-| latent_z_mean | 0.0226 |
-| latent_z_std | 1.0263 |
-| occupancy_loss | 0.0101 |
-| raydrop_loss | 0.0278 |
-| point_metric_samples | 6008 |
-| point_metric_valid_samples | 6008 |
 | chamfer_symmetric_mean | 3.006666 |
-| chamfer_symmetric_sqrt_m_mean | 1.675572 |
-| jsd | 0.12198742 |
-| mmd | 2.24676057e-04 |
 
 ## Visualizations
 
