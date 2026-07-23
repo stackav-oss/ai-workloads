@@ -167,11 +167,6 @@ Benchmark machine for the four-GPU run:
 | 4 GPUs | Training | 16000 | 175.81 GiB | 16.41 GiB | 93.08% | 5.49% |
 | 4 GPUs | Inference | 3200 | 56.18 GiB | 19.78 GiB | 46.26% | 4.18% |
 
-*Benchmarks measure model work after a dataloader batch has been fetched. The
-single-GPU benchmark was collected on B200; the four-GPU benchmark was
-collected on GB200 at batch size 4 per GPU. Multi-GPU memory columns report the
-maximum observed rank/device value.*
-
 ## Results
 
 Checkpoint:
