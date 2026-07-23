@@ -14,3 +14,6 @@ Cosmos contains evaluation scripts for nvidia cosmos predict and tranfer models.
 
 ## LiDAR VAE
 lidar_vae contains the LiDAR-only NuScenes VAE training workload.
+
+## Mega-SAM
+`mega_sam` contains the mega-sam workload
