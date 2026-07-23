@@ -1,9 +1,9 @@
 # LiDAR VAE
 
-This repository contains a LiDAR-only VAE training bundle for reconstructing
-NuScenes point clouds from learned neural feature grids. It includes the model
-code, the embedded Jormungand NuScenes dataloader, Docker/Pixi environment
-files, evaluation metrics, and saved GT/PRED renders.
+This repository contains a LiDAR VAE training and evaluation pipeline for
+reconstructing NuScenes point clouds from learned neural feature grids. It
+includes the model code, the embedded Jormungand NuScenes dataloader,
+Docker/Pixi environment files, evaluation metrics, and saved GT/PRED renders.
 
 ## Repository Layout
 
@@ -18,7 +18,7 @@ files, evaluation metrics, and saved GT/PRED renders.
 - `Dockerfile`, `pixi.toml`, `build_pig.sh`, `launch.sh`: reproducible local
   GPU environment.
 
-## Setting Up The Repository
+## Setup
 
 Run the commands below from the `lidar_vae` directory unless noted otherwise.
 
@@ -66,7 +66,7 @@ The NuScenes release files included here are:
 - `visualize.py`: visualization helper code.
 - `nuscenes_class_to_colors.py`: semantic color map for NuScenes classes.
 
-### Convert NuScenes To Lance
+### Convert NuScenes to Lance
 
 Download NuScenes locally so that the raw dataset is available under
 `/data/nuscenes`, then export the train/val table:
@@ -90,7 +90,7 @@ python -m jormungand.datasets.nuscenes.nuscenes_to_lance \
 The exporter overwrites existing output by default. Use `--no-overwrite` when
 you want it to fail instead of replacing an existing Lance table.
 
-### Visualize The Lance Dataset
+### Visualize Lance Data
 
 Use the Lance reader to inspect frames in Viser:
 
@@ -107,38 +107,12 @@ python -m jormungand.datasets.nuscenes.nuscenes_lance \
 This opens a Viser server on `localhost:8080` inside the container. If you are
 using `launch.sh`, that port is forwarded to the host.
 
-## Model And Latent Shapes
-
-The LiDAR-only path is:
-
-```text
-VoxelNet encoder -> 3D FPN -> sparse VFE decoder -> dense voxel feature grid
--> BEV pooling -> BEV encoder -> VAE resampling -> BEV decoder
--> neural feature grid -> ray sampling -> LiDAR reconstruction
-```
-
-Shape summary:
-
-- Sparse LiDAR encoder/FPN produces a bottleneck around
-  `(B, 256, 8, 128, 128)`.
-- The VFE decoder reconstructs a dense feature grid shaped
-  `(B, 16, 64, 1024, 1024)`. In BEV-friendly layout, this is
-  `B x 1024 x 1024 x 16 x 64`.
-- BEV pooling converts that grid to `(B, 64, 1024, 1024)`.
-- The BEV encoder downsamples to the VAE latent:
-  `(B, 32, 128, 128)`, or `128 x 128 x 32` per sample.
-- The VAE samples `z` from `mu` and `log_var`, then the BEV decoder upsamples
-  back to occupancy logits `(B, 64, 1024, 1024)` and a neural feature grid
-  `(B, 16, 64, 1024, 1024)`.
-- The render head samples rays through the neural feature grid and reconstructs
-  depth, intensity, raydrop, occupancy, and SDF-related outputs.
-
 ## Training
 
 `train_lidar_only.py` is already LiDAR-only, so no camera-disable flag is
 required.
 
-### Multi GPU
+### Multi-GPU Training
 
 From `lidar_vae/autoencoder`, set the run name and Python path:
 
@@ -166,32 +140,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --nproc_per_node=4 train_lidar_only.py \
 
 Follow progress with `tail -f logs/${RUN_NAME}.log`.
 
-### Single GPU
-
-From `lidar_vae/autoencoder`:
-
-```bash
-export RUN_NAME=ai_workloads_rec
-mkdir -p logs checkpoints/${RUN_NAME}/lidar_only
-export PYTHONPATH=$(pwd):$(pwd)/../jormungand:$(pwd)/../third_party/OpenSceneFlow:${PYTHONPATH}
-
-python train_lidar_only.py \
-  --max-steps 200000 \
-  --batch-size 2 \
-  --checkpoint-dir checkpoints/${RUN_NAME}/lidar_only \
-  --vae-warmup-steps 10000 \
-  --kl-weight 5e-1 \
-  --kl-weight-schedule cyclic \
-  --kl-cycle-count 4 \
-  --kl-cycle-ramp-fraction 0.5 \
-  --lr 1e-3 \
-  > logs/${RUN_NAME}.log 2>&1 < /dev/null &
-
-echo $! > logs/${RUN_NAME}.pid
-echo logs/${RUN_NAME}.log
-```
-
-Useful knobs:
+Training options:
 
 - `--batch-size`: per-GPU batch size.
 - `--num-sweeps`: number of LiDAR sweeps aggregated for encoder input.
@@ -202,48 +151,10 @@ Useful knobs:
 - `--resume <checkpoint>`: resume from a saved checkpoint.
 - `--overfit-samples <N>`: debug on a small fixed subset.
 
-### Single-GPU Runtime Benchmark
+### Runtime Benchmark
 
-`train_lidar_only.py` has an opt-in `--benchmark` mode. Normal training is
-unchanged unless this flag is provided. Benchmark mode measures only the model
-work after a dataloader batch has already been fetched:
-
-- training: forward, loss, backward, gradient clip, optimizer step, scheduler
-  step
-- inference: `render_lidar` only, without point-cloud metrics or saving renders
-
-Example single-GPU benchmark command:
-
-```bash
-export RUN_NAME=0722_benchmark
-export LIDAR_VAE_DATA_ROOT=<lance-data-root>
-mkdir -p logs checkpoints/${RUN_NAME}/lidar_only
-
-CUDA_VISIBLE_DEVICES=0 python -u train_lidar_only.py \
-  --data-root "${LIDAR_VAE_DATA_ROOT}" \
-  --batch-size 4 \
-  --log-interval 50 \
-  --val-interval 1000000 \
-  --checkpoint-dir checkpoints/${RUN_NAME}/lidar_only \
-  --train-vae \
-  --vae-warmup-steps 10000 \
-  --kl-weight 0.1 \
-  --kl-weight-schedule cyclic \
-  --kl-cycle-count 4 \
-  --kl-cycle-ramp-fraction 0.5 \
-  --lr 1e-3 \
-  --test-val \
-  --no-test-metrics \
-  --benchmark \
-  --benchmark-train-steps 1000 \
-  --benchmark-inference-steps 200 \
-  --benchmark-power-interval 0.1 \
-  > logs/${RUN_NAME}.log 2>&1
-```
-
-Final benchmark on one GB200 GPU, batch size `4`, `1000` measured training
-batches (`4000` samples) and `200` measured inference batches (`800`
-samples):
+Final benchmark* at batch size `4`, with `1000` measured training batches
+(`4000` samples) and `200` measured inference batches (`800` samples):
 
 | Phase | Samples | Mean s/batch | Samples/s |
 | --- | ---: | ---: | ---: |
@@ -254,6 +165,8 @@ samples):
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | Training | 120.03 GiB | 169.15 GiB | 19.87 GiB | 635.07 W | 736.84 W | 84.94% |
 | Inference | 43.15 GiB | 61.11 GiB | 25.24 GiB | 439.00 W | 547.46 W | 49.90% |
+
+*Benchmark collected on a single B200 GPU.
 
 ## Results
 
