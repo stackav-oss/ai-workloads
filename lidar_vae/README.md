@@ -202,6 +202,59 @@ Useful knobs:
 - `--resume <checkpoint>`: resume from a saved checkpoint.
 - `--overfit-samples <N>`: debug on a small fixed subset.
 
+### Single-GPU Runtime Benchmark
+
+`train_lidar_only.py` has an opt-in `--benchmark` mode. Normal training is
+unchanged unless this flag is provided. Benchmark mode measures only the model
+work after a dataloader batch has already been fetched:
+
+- training: forward, loss, backward, gradient clip, optimizer step, scheduler
+  step
+- inference: `render_lidar` only, without point-cloud metrics or saving renders
+
+Example single-GPU benchmark command:
+
+```bash
+export RUN_NAME=0722_benchmark
+export LIDAR_VAE_DATA_ROOT=<lance-data-root>
+mkdir -p logs checkpoints/${RUN_NAME}/lidar_only
+
+CUDA_VISIBLE_DEVICES=0 python -u train_lidar_only.py \
+  --data-root "${LIDAR_VAE_DATA_ROOT}" \
+  --batch-size 4 \
+  --log-interval 50 \
+  --val-interval 1000000 \
+  --checkpoint-dir checkpoints/${RUN_NAME}/lidar_only \
+  --train-vae \
+  --vae-warmup-steps 10000 \
+  --kl-weight 0.1 \
+  --kl-weight-schedule cyclic \
+  --kl-cycle-count 4 \
+  --kl-cycle-ramp-fraction 0.5 \
+  --lr 1e-3 \
+  --test-val \
+  --no-test-metrics \
+  --benchmark \
+  --benchmark-train-steps 1000 \
+  --benchmark-inference-steps 200 \
+  --benchmark-power-interval 0.1 \
+  > logs/${RUN_NAME}.log 2>&1
+```
+
+Final benchmark on one GB200 GPU, batch size `4`, `1000` measured training
+batches (`4000` samples) and `200` measured inference batches (`800`
+samples):
+
+| Phase | Samples | Mean s/batch | Samples/s |
+| --- | ---: | ---: | ---: |
+| Training | 4000 | 0.9272 | 4.314 |
+| Inference | 800 | 0.5881 | 6.801 |
+
+| Phase | PyTorch peak alloc max | GPU device memory max | CPU RSS max | Mean power | Max power | Mean GPU util |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Training | 120.03 GiB | 169.15 GiB | 19.87 GiB | 635.07 W | 736.84 W | 84.94% |
+| Inference | 43.15 GiB | 61.11 GiB | 25.24 GiB | 439.00 W | 547.46 W | 49.90% |
+
 ## Results
 
 Checkpoint:

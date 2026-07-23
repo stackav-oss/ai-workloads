@@ -42,6 +42,7 @@ from lidar_only_render_head import LidarOnlyRenderHead
 
 from bev_pillar_pooling import BEVPillarPooling
 from bev_2d_fpn import BEV2DFPN
+from benchmark import BenchmarkRecorder, benchmark_phase, print_benchmark_summary
 from metrics.chamfer_distance import ChamferDistanceMetrics
 from metrics.jsd import JensenShannonDivergence
 from metrics.mmd import MaximumMeanDiscrepancy
@@ -1373,6 +1374,61 @@ def kl_weight_scale_for_step(
     return min(1.0, cycle_position / ramp_fraction)
 
 
+@torch.no_grad()
+def run_benchmark_inference(
+    *,
+    model,
+    test_dataloader,
+    device: torch.device,
+    benchmark_recorder: BenchmarkRecorder,
+    max_batches: int,
+    rank: int,
+) -> None:
+    """Benchmark render-only inference on already-loaded dataloader batches."""
+    if not benchmark_recorder.enabled:
+        return
+    if test_dataloader is None:
+        raise ValueError("--benchmark requires test validation data to be enabled.")
+
+    if is_main_process(rank):
+        print(f"\nRunning benchmark inference for {max_batches} batches...")
+
+    if device.type == "cuda":
+        torch.cuda.empty_cache()
+    model.eval()
+
+    def _render_batch(aggregated_points, points):
+        return model.render_lidar(
+            aggregated_points=aggregated_points,
+            points=points,
+        )
+
+    timed_render_batch = benchmark_phase(
+        benchmark_recorder,
+        "inference",
+        items_getter=lambda aggregated_points, points: len(points),
+    )(_render_batch)
+
+    measured_batches = 0
+    for batch in test_dataloader:
+        if measured_batches >= max_batches:
+            break
+
+        aggregated_points = [p.to(device) for p in batch["aggregated_points"]]
+        points = [p.to(device) for p in batch["points"]]
+
+        preds = timed_render_batch(aggregated_points, points)
+        measured_batches += 1
+
+        del preds, aggregated_points, points
+        if device.type == "cuda":
+            torch.cuda.empty_cache()
+
+    if is_main_process(rank):
+        print(f"Completed benchmark inference batches: {measured_batches}")
+    model.train()
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -1459,6 +1515,26 @@ def kl_weight_scale_for_step(
     help="Enable finite checks around the VAE, rays, and field sampler.",
 )
 @click.option("--test-version", type=str, default="v1.0-test")
+@click.option(
+    "--benchmark/--no-benchmark",
+    default=False,
+    help="Run opt-in single-GPU train/inference runtime benchmark.",
+)
+@click.option(
+    "--benchmark-train-steps",
+    default=1000,
+    help="Measured training batches to run when --benchmark is enabled.",
+)
+@click.option(
+    "--benchmark-inference-steps",
+    default=200,
+    help="Measured inference batches to run when --benchmark is enabled.",
+)
+@click.option(
+    "--benchmark-power-interval",
+    default=0.5,
+    help="Seconds between nvidia-smi power samples while benchmark phases run.",
+)
 def main(
     data_root: str,
     version: str,
@@ -1488,6 +1564,10 @@ def main(
     train_vae: bool,
     vae_warmup_steps: int,
     debug_numerics: bool,
+    benchmark: bool,
+    benchmark_train_steps: int,
+    benchmark_inference_steps: int,
+    benchmark_power_interval: float,
 ) -> None:
     """Train LiDAR-only rendering from scratch (depth + intensity + raydrop)."""
     rank, world_size, is_distributed = setup_distributed()
@@ -1507,10 +1587,27 @@ def main(
         raise ValueError("--kl-cycle-count must be at least 1.")
     if not (0.0 < kl_cycle_ramp_fraction <= 1.0):
         raise ValueError("--kl-cycle-ramp-fraction must be in the interval (0, 1].")
+    if benchmark and is_distributed:
+        raise ValueError(
+            "--benchmark is intended for single-GPU runs; use python, not torchrun."
+        )
+    if benchmark:
+        if benchmark_train_steps < 1:
+            raise ValueError("--benchmark-train-steps must be at least 1.")
+        if benchmark_inference_steps < 1:
+            raise ValueError("--benchmark-inference-steps must be at least 1.")
+        if benchmark_power_interval <= 0.0:
+            raise ValueError("--benchmark-power-interval must be positive.")
+        max_steps = benchmark_train_steps
 
     if is_main_process(rank):
         print("=== LiDAR-Only Training ===")
         print(f"Device: {device} | World size: {world_size}")
+        if benchmark:
+            print(
+                "Benchmark mode: measuring model train steps after dataloader fetch, "
+                "then render_lidar inference steps."
+            )
 
     # --- Build model (serialized to avoid spconv JIT races) ---
     def _build():
@@ -1719,6 +1816,63 @@ def main(
                 if isinstance(v, torch.Tensor):
                     state[k] = v.to(device)
 
+    benchmark_recorder = BenchmarkRecorder(
+        enabled=benchmark,
+        device=device,
+        rank=rank,
+        phase_limits={
+            "training": benchmark_train_steps,
+            "inference": benchmark_inference_steps,
+        },
+        power_interval_s=benchmark_power_interval,
+    )
+
+    def _run_train_model_step(
+        aggregated_points,
+        points,
+        did_return,
+        occ_gt,
+        current_step,
+    ):
+        losses = model(
+            aggregated_points=aggregated_points,
+            points=points,
+            did_return=did_return,
+            occ_gt=occ_gt,
+        )
+
+        loss_terms = [
+            v
+            for k, v in losses.items()
+            if k.endswith("_loss") and isinstance(v, torch.Tensor)
+        ]
+        total_loss = sum(loss_terms)
+        if not torch.isfinite(total_loss):
+            loss_debug = {
+                k: (v.item() if isinstance(v, torch.Tensor) else v)
+                for k, v in losses.items()
+            }
+            raise FloatingPointError(f"total_loss is non-finite: {loss_debug}")
+        total_loss = total_loss / grad_accum_steps
+        total_loss.backward()
+
+        if (current_step + 1) % grad_accum_steps == 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=35.0)
+            optimizer.step()
+            scheduler.step()
+            optimizer.zero_grad()
+        return losses
+
+    timed_train_model_step = benchmark_phase(
+        benchmark_recorder,
+        "training",
+        items_getter=(
+            lambda aggregated_points, points, did_return, occ_gt, current_step: len(
+                points
+            )
+        ),
+    )(_run_train_model_step)
+
     # --- Training Loop ---
     if is_main_process(rank):
         checkpoint_dir.mkdir(parents=True, exist_ok=True)
@@ -1757,6 +1911,11 @@ def main(
             print("  vae_warmup_steps ignored because train_vae=False")
         if debug_numerics:
             print("  debug_numerics=True")
+        if benchmark:
+            print(f"  benchmark_train_steps={benchmark_train_steps}")
+            print(f"  benchmark_inference_steps={benchmark_inference_steps}")
+            print(f"  benchmark_power_interval={benchmark_power_interval}")
+            print("  benchmark excludes dataloader wait time")
         print()
 
     last_vae_warmup_active = None
@@ -1801,37 +1960,17 @@ def main(
             did_return = [d.to(device) for d in batch["did_return"]]
             occ_gt = batch["occ_gt"].to(device)
 
-            losses = model(
+            losses = timed_train_model_step(
                 aggregated_points=aggregated_points,
                 points=points,
                 did_return=did_return,
                 occ_gt=occ_gt,
+                current_step=step,
             )
-
-            loss_terms = [
-                v
-                for k, v in losses.items()
-                if k.endswith("_loss") and isinstance(v, torch.Tensor)
-            ]
-            total_loss = sum(loss_terms)
-            if not torch.isfinite(total_loss):
-                loss_debug = {
-                    k: (v.item() if isinstance(v, torch.Tensor) else v)
-                    for k, v in losses.items()
-                }
-                raise FloatingPointError(f"total_loss is non-finite: {loss_debug}")
-            total_loss = total_loss / grad_accum_steps
-            total_loss.backward()
 
             for k, v in losses.items():
                 val = v.item() if isinstance(v, torch.Tensor) else v
                 running_losses[k] = running_losses.get(k, 0.0) + val
-
-            if (step + 1) % grad_accum_steps == 0:
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=35.0)
-                optimizer.step()
-                scheduler.step()
-                optimizer.zero_grad()
 
             step += 1
 
@@ -1846,7 +1985,7 @@ def main(
                 )
                 running_losses = {}
 
-            if step % val_interval == 0 and is_main_process(rank):
+            if not benchmark and step % val_interval == 0 and is_main_process(rank):
                 ckpt_path = checkpoint_dir / f"step_{step:06d}.pth"
                 torch.save(
                     {
@@ -1866,7 +2005,7 @@ def main(
                 )
                 print(f"  Saved: {ckpt_path}")
 
-            if step % val_interval == 0:
+            if not benchmark and step % val_interval == 0:
                 val_dir = checkpoint_dir / "val_renders"
                 for state in optimizer.state.values():
                     for k, v in state.items():
@@ -1907,8 +2046,22 @@ def main(
                     dist.barrier()
                 model.train()
 
+    if benchmark:
+        @print_benchmark_summary(benchmark_recorder)
+        def _run_inference_benchmark() -> None:
+            run_benchmark_inference(
+                model=raw_model,
+                test_dataloader=test_dataloader,
+                device=device,
+                benchmark_recorder=benchmark_recorder,
+                max_batches=benchmark_inference_steps,
+                rank=rank,
+            )
+
+        _run_inference_benchmark()
+
     # Final checkpoint
-    if is_main_process(rank):
+    if is_main_process(rank) and not benchmark:
         ckpt_path = checkpoint_dir / f"step_{step:06d}_final.pth"
         torch.save(
             {
@@ -1927,6 +2080,8 @@ def main(
             ckpt_path,
         )
         print(f"\nTraining complete. Final checkpoint: {ckpt_path}")
+    elif is_main_process(rank):
+        print("\nBenchmark complete. Final checkpoint skipped.")
 
     cleanup_distributed(is_distributed)
 
