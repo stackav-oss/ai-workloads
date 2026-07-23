@@ -1,0 +1,59 @@
+[project]
+name = "jormungand"
+version = "0.1.0"
+authors = [{ name = "Ishan Khatri", email = "ikhatri+gh@stackav.com" }]
+requires-python = ">= 3.11"
+dependencies = [
+    "numpy>=2.4.3,<2.5",
+    "dltype>=0.13.2,<0.14",
+    "pyquaternion>=0.9.9,<0.10",
+    "einops>=0.8.2,<0.9",
+    "matplotlib>=3.10.8,<4",
+    "pandas>=3.0.2,<4",
+    "viser>=1.0.26,<2",
+    "pylance>=4.0.0,<5",
+    "click==8.3.2",
+    "pyarrow==23.0.1",
+    "nuscenes-devkit>=1.2.0,<2",
+    # --- PUBLIC PYPI TORCH REQUIREMENT ---
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+]
+
+[project.optional-dependencies]
+depth = ["moge @ git+https://github.com/microsoft/MoGe.git"]
+av2 = ["av2>=0.2.1,<0.3"]
+
+# --- PIXI CONFIG ---
+
+[tool.pixi.workspace]
+channels = ["conda-forge", "nodefaults"]
+platforms = ["linux-64"]
+
+[tool.pixi.dependencies]
+# This tells Pixi: when anyone wants "opencv", use the conda-forge headless version
+# We need this to prevent the `av2` package from installing non-headless opencv in our container
+opencv = ">=4.10.0"
+
+[tool.pixi.pypi-dependencies]
+jormungand = { path = ".", editable = true }
+# --- LOCAL CUDA CONSTRAINTS ---
+# Pixi will prioritize these specific versions and indexes over the broad project requirements
+torch = { version = ">=2.11.0", index = "https://download.pytorch.org/whl/cu128" }
+torchvision = { version = ">=0.26", index = "https://download.pytorch.org/whl/cu128" }
+
+[tool.pixi.pypi-options.dependency-overrides]
+numpy = ">=2.4.3, <2.5"
+matplotlib = ">=3.10.8"
+shapely = ">=2.0.0"
+
+[tool.pixi.feature.depth]
+pypi-dependencies = { moge = { git = "https://github.com/microsoft/MoGe.git" } }
+
+[tool.pixi.feature.av2]
+pypi-dependencies = { av2 = ">=0.2.1,<0.3" }
+
+[tool.pixi.environments]
+default = { features = [], solve-group = "main" }
+argoverse = { features = ["av2"], solve-group = "main" }
+depth = { features = ["depth"], solve-group = "main" }
