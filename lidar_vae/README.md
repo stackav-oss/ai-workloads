@@ -153,18 +153,10 @@ Training options:
 
 ### Runtime Benchmark
 
-Final benchmark* at batch size `4`, with `1000` measured training batches
-(`4000` samples) and `200` measured inference batches (`800` samples):
-
-| Phase | Samples | Mean s/batch | Samples/s |
-| --- | ---: | ---: | ---: |
-| Training | 4000 | 0.9272 | 4.314 |
-| Inference | 800 | 0.5881 | 6.801 |
-
-| Phase | PyTorch peak alloc max | GPU device memory max | CPU RSS max | Mean power | Max power | Mean GPU util |
+| Phase | Samples | Mean s/batch | Samples/s | GPU device memory max | Mean power | Mean GPU util |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Training | 120.03 GiB | 169.15 GiB | 19.87 GiB | 635.07 W | 736.84 W | 84.94% |
-| Inference | 43.15 GiB | 61.11 GiB | 25.24 GiB | 439.00 W | 547.46 W | 49.90% |
+| Training | 4000 | 0.9272 | 4.314 | 169.15 GiB | 635.07 W | 84.94% |
+| Inference | 800 | 0.5881 | 6.801 | 61.11 GiB | 439.00 W | 49.90% |
 
 *Benchmark collected on a single B200 GPU.
 
