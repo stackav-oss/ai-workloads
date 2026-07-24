@@ -153,12 +153,19 @@ Training options:
 
 ### Runtime Benchmark
 
-| Phase | Samples | Mean s/batch | Samples/s | GPU device memory max | Mean power | Mean GPU util |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Training | 4000 | 0.9272 | 4.314 | 169.15 GiB | 635.07 W | 84.94% |
-| Inference | 800 | 0.5881 | 6.801 | 61.11 GiB | 439.00 W | 49.90% |
+Benchmark machine for the four-GPU run:
 
-*Benchmark collected on a single B200 GPU.
+| Component | Details |
+| --- | --- |
+| GPU | 4 x NVIDIA GB200, 189471 MiB memory each |
+| System memory | 927 GiB |
+
+| Run | Phase | Samples | GPU memory max | CPU memory max | Mean GPU util | Mean CPU util |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1 GPU | Training | 4000 | 169.15 GiB | 19.87 GiB | 84.94% | 2.15% |
+| 1 GPU | Inference | 800 | 61.11 GiB | 25.24 GiB | 49.90% | 2.15% |
+| 4 GPUs | Training | 16000 | 175.81 GiB | 16.41 GiB | 93.08% | 5.49% |
+| 4 GPUs | Inference | 3200 | 56.18 GiB | 19.78 GiB | 46.26% | 4.18% |
 
 ## Results
 
